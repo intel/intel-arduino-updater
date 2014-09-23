@@ -41,7 +41,7 @@ public class GalileoFirmwareUpdater {
     public GalileoFirmwareUpdater(CommunicationService s, String c) {
         URL u = getClass().getResource(DEFAULT_CAPSULE);
         update = new FirmwareCapsule(u);
-        capsules = new ArrayList<>();
+        capsules = new ArrayList<FirmwareCapsule>();
         capsules.add(update);
         services = CommunicationService.getCommunicationServices();
         if (!services.isEmpty()) {

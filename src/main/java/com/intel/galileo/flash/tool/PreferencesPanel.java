@@ -79,7 +79,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
                             boardVersion.repaint();
                             boardVersion.revalidate();
                         }
-                    } catch (InterruptedException | ExecutionException unused) {
+                    } catch (InterruptedException unused) {
+                    } catch (ExecutionException unused) {
                     }
                 }
 
@@ -109,7 +110,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
                             capsuleVersion.repaint();
                             capsuleVersion.revalidate();
                         }
-                    } catch (InterruptedException | ExecutionException unused) {
+                    } catch (InterruptedException unused) {
+                    } catch (ExecutionException unused) {
                     }
                 }
                 

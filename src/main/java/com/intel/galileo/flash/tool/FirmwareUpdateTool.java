@@ -32,8 +32,7 @@ public class FirmwareUpdateTool extends JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException | InstantiationException | 
-                IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(FirmwareUpdateTool.class.getName())
                     .log(java.util.logging.Level.SEVERE, null, ex);
         }

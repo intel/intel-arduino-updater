@@ -173,7 +173,7 @@ public class GalileoVersion implements Comparable<GalileoVersion> {
         int j = version.lastIndexOf("+");
         j = (j >= 0) ? j : version.length();
 
-        List<Integer> v = new ArrayList<>();
+        List<Integer> v = new ArrayList<Integer>();
         if (i < j) {
             String code = version.substring(i, j);
             for (String part : code.split("\\.")) {
@@ -216,8 +216,7 @@ public class GalileoVersion implements Comparable<GalileoVersion> {
             Integer build = n & 0xff;
             n >>= 8;
 
-            List<Integer> v;
-            v = new ArrayList<>();
+            List<Integer> v = new ArrayList<Integer>();
             for (int i = 0; i < 3; ++i) {
                 v.add(0, n & 0xff);
                 n >>= 8;

@@ -89,7 +89,7 @@ public class SerialCommunicationService extends CommunicationService {
     @Override
     public String sendCommand(String remoteCommand) throws Exception {
         progress = null;
-        List<String> args = new LinkedList<>();
+        List<String> args = new LinkedList<String>();
         args.add("--escape");
         args.add("--verbose");
         args.add("-c");
@@ -98,7 +98,7 @@ public class SerialCommunicationService extends CommunicationService {
     }
     
     private String zmodemOperation(List<String> args) throws Exception {
-        List<String> cmd = new LinkedList<>();
+        List<String> cmd = new LinkedList<String>();
         cmd.add(zmodem.getCanonicalPath());
         cmd.addAll(args);
         ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -128,7 +128,7 @@ public class SerialCommunicationService extends CommunicationService {
     @Override
     public void sendFile(File f, FileProgress p) throws Exception {
         progress = p;
-        List<String> args = new LinkedList<>();
+        List<String> args = new LinkedList<String>();
         args.add("--escape");
         args.add("--binary");
         args.add("--overwrite");
@@ -145,11 +145,12 @@ public class SerialCommunicationService extends CommunicationService {
         try {
             String prefix = "lsz";
             String suffix = isWindows() ? "exe" : "";
-            try (InputStream zstream = getZmodemResource()) {
-                File ztmp = copyResourceToTmpFile(zstream, prefix, suffix);
-                ztmp.setExecutable(true);
-                return ztmp;
-            }
+
+            InputStream zstream = getZmodemResource();
+            File ztmp = copyResourceToTmpFile(zstream, prefix, suffix);
+            ztmp.setExecutable(true);
+            return ztmp;
+
         } catch (IOException ioe) {
             getLogger().log(Level.SEVERE, null, ioe);
             // fall through to return null
@@ -161,16 +162,16 @@ public class SerialCommunicationService extends CommunicationService {
             throws IOException {
 
         File tmp = File.createTempFile(prefix, suffix);
-        try (FileOutputStream out = new FileOutputStream(tmp)) {
-            byte buff[] = new byte[4096];
-            for (int n = res.read(buff); n >= 0; n = res.read(buff)) {
-                out.write(buff, 0, n);
-            }
-            
-            out.flush();
-            out.close();
-            res.close();
+        FileOutputStream out = new FileOutputStream(tmp);
+        byte buff[] = new byte[4096];
+        for (int n = res.read(buff); n >= 0; n = res.read(buff)) {
+            out.write(buff, 0, n);
         }
+
+        out.flush();
+        out.close();
+        res.close();
+
         tmp.deleteOnExit();
         return tmp;
 
@@ -280,8 +281,10 @@ public class SerialCommunicationService extends CommunicationService {
                 if (progress != null) {
                     progress.bytesSent(nsent);
                 }
-            } catch (IOException | SerialPortException e) {
+            } catch (IOException e) {
                 getLogger().log(Level.SEVERE, null, e);
+            } catch (SerialPortException e) {
+                getLogger().severe(e.getMessage());
             }
         }
         
@@ -311,8 +314,10 @@ public class SerialCommunicationService extends CommunicationService {
                     }
                 }
                 
-            } catch (SerialPortException | IOException ex) {
-                getLogger().log(Level.SEVERE, null, ex);
+           } catch (IOException e) {
+                getLogger().log(Level.SEVERE, null, e);
+            } catch (SerialPortException e) {
+                getLogger().severe(e.getMessage());
             }
 
         }

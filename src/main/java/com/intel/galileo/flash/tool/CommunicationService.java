@@ -26,7 +26,7 @@ public abstract class CommunicationService {
      * @return 
      */
     public static List<CommunicationService> getCommunicationServices() {
-        List<CommunicationService> services = new LinkedList<>();
+        List<CommunicationService> services = new LinkedList<CommunicationService>();
         Class<CommunicationService> c = CommunicationService.class;
         ServiceLoader<CommunicationService> available = ServiceLoader.load(c);
         for (CommunicationService link : available) {
