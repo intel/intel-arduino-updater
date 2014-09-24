@@ -6,6 +6,8 @@
 
 package com.intel.galileo.flash.tool;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +22,15 @@ import java.util.logging.Logger;
  */
 public class GalileoFirmwareUpdater {
 
+    static final String[] CAPSULE_RESOURCES = {
+        "sysimage-galileo-1.0.2.cap",
+        "sysimage-galileo-1.0.3.cap"
+    };
+    
+    static final String CAPSULE_RESOURCE_PATH = "/capsules/";
+    
     // TODO - do something other than hardwared default
-    static final String DEFAULT_CAPSULE = "/capsules/sysimage-galileo-1.0.2.cap";
+    static final String DEFAULT_CAPSULE = "sysimage-galileo-1.0.3.cap";
     
     public GalileoFirmwareUpdater() {
         this(null,null);
@@ -39,10 +48,7 @@ public class GalileoFirmwareUpdater {
      * available it will be used as a default.
      */
     public GalileoFirmwareUpdater(CommunicationService s, String c) {
-        URL u = getClass().getResource(DEFAULT_CAPSULE);
-        update = new FirmwareCapsule(u);
-        capsules = new ArrayList<FirmwareCapsule>();
-        capsules.add(update);
+        props = new PropertyChangeSupport(this);
         services = CommunicationService.getCommunicationServices();
         if (!services.isEmpty()) {
             // default service
@@ -61,8 +67,30 @@ public class GalileoFirmwareUpdater {
 
             }
         }
+        capsules = new ArrayList<FirmwareCapsule>();
+        for (String capsuleName : CAPSULE_RESOURCES) {
+            String path = CAPSULE_RESOURCE_PATH+capsuleName;
+            URL u = getClass().getResource(path);
+            if (u == null) {
+                throw new InternalError("Invalid capsule url: "+path);
+            }
+            FirmwareCapsule cap = new FirmwareCapsule(u);
+            capsules.add(cap);
+            if (capsuleName.equals(DEFAULT_CAPSULE)) {
+                setUpdate(cap);
+            }
+        }
+
     }
     
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.props.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.props.removePropertyChangeListener(listener);
+    }
+ 
     /**
      * Fetch the list of communication services that have been discovered to
      * communicate with the board.  This is independent of the actual connection
@@ -121,10 +149,17 @@ public class GalileoFirmwareUpdater {
      * Fetch the version of the firmware currently on the board.  This is a
      * potentially lengthy operation as the board must be queried over the 
      * communication link.
+     * <p>
+     * Although this is a read-only property, it is a bound property which
+     * will fire notifications on change.
      * 
      * @return 
      */
     public synchronized final GalileoVersion getCurrentBoardVersion() {
+        GalileoVersion v0;
+        GalileoVersion v1;
+ 
+        v0 = v1 = currentBoardVersion;
         if (currentBoardVersion == null) {
             if (communicationService == null) {
                 throw new IllegalArgumentException("No communication service");
@@ -149,8 +184,19 @@ public class GalileoFirmwareUpdater {
                 getLogger().log(Level.SEVERE, null, ex);
             }
             communicationService.closeConnection();
+            v1 = currentBoardVersion;
+        }
+        
+        if (v0 != v1) {
+            props.firePropertyChange("currentBoardVersion", v0, v1);
         }
         return currentBoardVersion;
+    }
+    
+    protected synchronized void invalidateBoardVersion() {
+        GalileoVersion v0 = currentBoardVersion;
+        currentBoardVersion = null;
+        props.firePropertyChange("currentBoardVersion", v0, null);
     }
 
     /**
@@ -161,13 +207,13 @@ public class GalileoFirmwareUpdater {
      * @return 
      */
     public final GalileoVersion getUpdateVersion() {
-        if (update == null) {
-            throw new IllegalArgumentException("No update firmware selected");
-        }
-        if (capsuleVersion == null) {
-            capsuleVersion = update.getVersion();
-        }
         return capsuleVersion;
+    }
+    
+    private void setUpdateVersion(GalileoVersion v) {
+        GalileoVersion old = capsuleVersion;
+        capsuleVersion = v;
+        props.firePropertyChange("updateVersion", old, capsuleVersion);
     }
     
     public final List<FirmwareCapsule> getAvailableFirmware() {
@@ -183,8 +229,12 @@ public class GalileoFirmwareUpdater {
      * @param update 
      */
     public synchronized final void setUpdate(FirmwareCapsule update) {
+        FirmwareCapsule old = this.update;
         this.update = update;
-        capsuleVersion = null;
+        props.firePropertyChange("update", old, update);
+        
+        GalileoVersion v = (update != null) ? update.getVersion() : null;
+        setUpdateVersion(v);
     }
     
     /**
@@ -307,13 +357,14 @@ public class GalileoFirmwareUpdater {
             log.info(msg);
             if (progress != null) {
                 progress.updateMessage(msg);
-            }            
+            }
+
         } finally {
             communicationService.closeConnection();
         }
         
         // wait for the board to finish updating and check the firmware version
-        currentBoardVersion = null;
+        invalidateBoardVersion();
         
         if (progress != null) {
             progress.updateProgress(0);
@@ -355,6 +406,7 @@ public class GalileoFirmwareUpdater {
         }
     }
     
+    private PropertyChangeSupport props;
     private GalileoVersion capsuleVersion;
     private GalileoVersion currentBoardVersion;
     private List<CommunicationService> services;

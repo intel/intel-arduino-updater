@@ -6,8 +6,11 @@
 
 package com.intel.galileo.flash.tool;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 /**
@@ -22,6 +25,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
     public PreferencesPanel(GalileoFirmwareUpdater galileo) {
         initComponents();
         this.galileo = galileo;
+        this.galileo.addPropertyChangeListener(changes);
         initFirmware();
         List<CommunicationService> services = galileo.getCommunicationServices();
         if (! services.isEmpty()) {
@@ -44,6 +48,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
                 }
             }
         }
+        
         updateBoardVersion();
         updateFirmwareVersion();
     }
@@ -89,6 +94,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         }
     }
     
+    
     private SwingWorker capsuleVersionUpdater;
     private void updateFirmwareVersion() {
         capsuleVersion.setText("Unknown");
@@ -119,6 +125,41 @@ public class PreferencesPanel extends javax.swing.JPanel {
             capsuleVersionUpdater.execute();
         }
     }
+    
+    private PropertyChangeListener changes = new PropertyChangeListener() {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            String name = evt.getPropertyName();
+            final Object o = evt.getNewValue();
+            if ("updateVersion".equals(name)) {
+                GalileoVersion v = (o != null) ? (GalileoVersion) o : null;
+                final String updateVersion = (v != null) ? v.toPresentationString() : "Unknown";
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        capsuleVersion.setText(updateVersion);
+                        capsuleVersion.repaint();
+                        capsuleVersion.revalidate();
+                                            
+                    }
+                });
+            } else if ("currentBoardVersion".equals(name)) {
+                GalileoVersion v = (o != null) ? (GalileoVersion) o : null;
+                final String version = (v != null) ? v.toPresentationString() : "Unknown";
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        boardVersion.setText(version);
+                        boardVersion.repaint();
+                        boardVersion.revalidate();
+                                            
+                    }
+                });
+            }
+        }
+        
+    };
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -161,6 +202,11 @@ public class PreferencesPanel extends javax.swing.JPanel {
         jLabel3.setText("Firmware:");
 
         firmwareComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));
+        firmwareComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                firmwareChoiceChanged(evt);
+            }
+        });
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setLabelFor(capsuleVersion);
@@ -236,10 +282,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
     private void capsuleVersionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_capsuleVersionActionPerformed
         
-        FirmwareCapsule cap = (FirmwareCapsule) firmwareComboBox.getSelectedItem();
-        galileo.setUpdate(cap);
-        capsuleVersion.setText("");
-        updateBoardVersion();
+        //capsuleVersion.setText("");
+        //updateBoardVersion();
         
     }//GEN-LAST:event_capsuleVersionActionPerformed
 
@@ -250,6 +294,12 @@ public class PreferencesPanel extends javax.swing.JPanel {
         boardVersion.setText("");
         updateBoardVersion();
     }//GEN-LAST:event_connectionComboBoxActionPerformed
+
+    private void firmwareChoiceChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_firmwareChoiceChanged
+        FirmwareCapsule cap = (FirmwareCapsule) firmwareComboBox.getSelectedItem();
+        galileo.getLogger().info("Selected firmware: "+cap);
+        galileo.setUpdate(cap);
+    }//GEN-LAST:event_firmwareChoiceChanged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
