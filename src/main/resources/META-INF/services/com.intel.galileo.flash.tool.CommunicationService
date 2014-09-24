@@ -1,1 +1,3 @@
-com.intel.galileo.flash.tool.SerialCommunicationService
+com.intel.galileo.flash.tool.LinuxZmodemService
+com.intel.galileo.flash.tool.MacosxZmodemService
+com.intel.galileo.flash.tool.WindowsZmodemService

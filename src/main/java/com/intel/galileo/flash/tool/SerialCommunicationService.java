@@ -8,20 +8,17 @@ package com.intel.galileo.flash.tool;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import jssc.SerialPort;
-import jssc.SerialPortException;
-import jssc.SerialPortList;
 
 /**
  * Implementation of the CommunicationLink service to communicate with a 
@@ -31,8 +28,10 @@ import jssc.SerialPortList;
  * mechanism.  It is a native program that is unpacked into a temporary file
  * appropriate for the platform at runtime.
  */
-public class SerialCommunicationService extends CommunicationService {
+public abstract class SerialCommunicationService extends CommunicationService {
 
+    protected File zmodemDir;
+    
     @Override
     public String getServiceName() {
         return "Serial Connection Service";
@@ -45,70 +44,67 @@ public class SerialCommunicationService extends CommunicationService {
 
     @Override
     public boolean isConnectionOpen() {
-        return (port != null) && port.isOpened();
-    }
-
-    
-    @Override
-    public List<String> getAvailableConnections() {
-        String[] names;   
-        if (isMacOS()) {
-            Pattern p = Pattern.compile("cu.usbmodem*");
-            names = SerialPortList.getPortNames(p);
-        } else {
-            names = SerialPortList.getPortNames();
-        }
-        return Arrays.asList(names);
+        return (zmodemDir != null);
     }
     
+    /**
+     * Implemented to create a temporary directory for the native zmodem
+     * support.  Subclasses must actually populate it.
+     * 
+     * @param portName
+     * @return 
+     */
     @Override
     public boolean openConnection(String portName) {
-        port = new SerialPort(portName);
         try {
-            zmodem = getZmodemProgram();
-            boolean ok = port.openPort() && (zmodem != null);
-            return ok;
-        } catch (SerialPortException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
+            File f = File.createTempFile("bogus", "");
+            File tmpDir = f.getParentFile();
+            f.delete();
+            zmodemDir = new File(tmpDir, "zmodem");
+            zmodemDir.mkdir();
+            zmodemDir.deleteOnExit();
+        } catch (IOException ex) {
+            zmodemDir = null;
+            Logger.getLogger(SerialCommunicationService.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-        return false;
+        return true;
     }
     
     @Override
     public void closeConnection() {
-        if (port != null) {
-            try {
-                port.closePort();
-            } catch (SerialPortException ex) {
-                getLogger().log(Level.SEVERE, null, ex);
-            }
-            port = null;
-        }
     }
-    
-    @Override
-    public String sendCommand(String remoteCommand) throws Exception {
-        progress = null;
-        List<String> args = new LinkedList<String>();
-        args.add("--escape");
-        args.add("--verbose");
-        args.add("-c");
-        args.add(remoteCommand);
-        return zmodemOperation(args);
-    }
-    
-    private String zmodemOperation(List<String> args) throws Exception {
+        
+    /**
+     * Run the native zmodem program which uses stdio for communication and 
+     * pipe its input/output to the given serial device.
+     * 
+     * @param zmodem  The path to the native zmodem program
+     * @param remoteCommand  The remote command to execute
+     * @param device  the serial device to use.
+     * @return  The output of the command.
+     * @throws Exception 
+     */
+    protected String zmodemSendCommand(File zmodem, String remoteCommand, File device) throws Exception {
         List<String> cmd = new LinkedList<String>();
-        cmd.add(zmodem.getCanonicalPath());
-        cmd.addAll(args);
+        cmd.add(zmodem.getAbsolutePath());
+        cmd.add("--escape");
+        cmd.add("--verbose");
+        cmd.add("-c");
+        cmd.add(remoteCommand);
+        return zmodemOperation(cmd, null, new FileOutputStream(device), new FileInputStream(device));
+    }
+    
+    protected String zmodemOperation(List<String> cmd, FileProgress progress, OutputStream out, InputStream in) throws Exception {
+        this.progress = progress;
         ProcessBuilder pb = new ProcessBuilder(cmd);
         quit = false;
         final Process p = pb.start();
         RemoteOutputPipe outputReader = new RemoteOutputPipe(p.getErrorStream());
-        Thread serialOut = new Thread(new SerialOutputPipe(p.getInputStream()));
+        Thread serialOut = new Thread(new SerialOutputPipe(p.getInputStream(), out));
         serialOut.setName("serial-output");
         serialOut.start();
-        Thread serialIn = new Thread(new SerialInputPipe(p.getOutputStream()));
+        Thread serialIn = new Thread(new SerialInputPipe(p.getOutputStream(), in));
         serialIn.setName("serial-input");
         serialIn.start();
         Thread t = new Thread(outputReader);
@@ -125,43 +121,25 @@ public class SerialCommunicationService extends CommunicationService {
         return outputReader.getOutput();
     }
 
-    @Override
-    public void sendFile(File f, FileProgress p) throws Exception {
-        progress = p;
-        List<String> args = new LinkedList<String>();
-        args.add("--escape");
-        args.add("--binary");
-        args.add("--overwrite");
-        args.add("--verbose");
-        args.add(f.getCanonicalPath());
-        zmodemOperation(args);
+    public void zmodemSendFile(File zmodem, File f, FileProgress p, File device) throws Exception {
+        List<String> cmd = new LinkedList<String>();
+        cmd.add(zmodem.getAbsolutePath());
+        cmd.add("--escape");
+        cmd.add("--binary");
+        cmd.add("--overwrite");
+        cmd.add("--verbose");
+        cmd.add(f.getCanonicalPath());
+        zmodemOperation(cmd, p, new FileOutputStream(device), new FileInputStream(device));
     }
     
     Logger getLogger() {
         return Logger.getLogger(SerialCommunicationService.class.getName());
     }
-    
-    private File getZmodemProgram() {
-        try {
-            String prefix = "lsz";
-            String suffix = isWindows() ? "exe" : "";
-
-            InputStream zstream = getZmodemResource();
-            File ztmp = copyResourceToTmpFile(zstream, prefix, suffix);
-            ztmp.setExecutable(true);
-            return ztmp;
-
-        } catch (IOException ioe) {
-            getLogger().log(Level.SEVERE, null, ioe);
-            // fall through to return null
-        }
-        return null;
-    }
-    
-    private File copyResourceToTmpFile(InputStream res, String prefix, String suffix)
+        
+    private File copyResourceToTmpFile(InputStream res, File tmp)
             throws IOException {
 
-        File tmp = File.createTempFile(prefix, suffix);
+        //File tmp = File.createTempFile(prefix, suffix);
         FileOutputStream out = new FileOutputStream(tmp);
         byte buff[] = new byte[4096];
         for (int n = res.read(buff); n >= 0; n = res.read(buff)) {
@@ -177,51 +155,25 @@ public class SerialCommunicationService extends CommunicationService {
 
     }
     
-    private InputStream getZmodemResource() {        
-        String path = getOSResourcePath() + getOSZmodemFilename();
+    private InputStream getZmodemResource(String name) {        
+        String path = getOSResourcePath() + name;
         return getClass().getResourceAsStream(path);
     }
     
-    private String getOSZmodemFilename() {
-        if (isWindows()) {
-            return "lsz.exe";
-        }
-        return "lsz";
+    File copyZmodemResource(String name) throws IOException {
+        InputStream in = getZmodemResource(name);
+        File tmp = new File(zmodemDir, name);
+        return copyResourceToTmpFile(in, tmp);
     }
     
-    private String getOSResourcePath() {
-        String prefix = "/os/";
-        if (isMacOS()) {
-            return prefix + "macosx/";
-        } else if (isWindows()) {
-            return prefix + "windows/";
-        } else if (isLinux()) {
-            String arch = System.getProperty("os.arch");
-            if (arch.contains("64")) {
-             return prefix + "linux64/";               
-            }
-            return prefix + "linux32/";
-        }
-        throw new IllegalArgumentException("Unsupported OS");
-    }
+    /**
+     * Fetch the resource path for resources to be used on this os.
+     * @return 
+     */
+    protected abstract String getOSResourcePath();
     
-    private static final String OS_PROPERTY_KEY = "os.name";
+    protected static final String OS_PROPERTY_KEY = "os.name";
     
-    private static boolean isMacOS() {
-        return System.getProperty(OS_PROPERTY_KEY).toLowerCase()
-                .contains("mac");
-    }
-
-    private static boolean isWindows() {
-        return System.getProperty(OS_PROPERTY_KEY).toLowerCase()
-                .contains("windows");
-    }
-
-    private static boolean isLinux() {
-        return System.getProperty(OS_PROPERTY_KEY).toLowerCase()
-                .contains("linux");
-    }
-
     boolean quit = false;
     private SerialPort port;
     private File zmodem;
@@ -253,16 +205,26 @@ public class SerialCommunicationService extends CommunicationService {
                 }
             } catch (IOException ioe) {
                 getLogger().log(Level.SEVERE, null, ioe);
+            } finally {
+                try {
+                    es.close();
+                } catch (IOException ignored) {
+                }
             }
         }
     }
     
+    /**
+     * Copies stdout from the process and sends it to the serial output.
+     */
     private class SerialOutputPipe implements Runnable {
 
         private final InputStream in;
+        private final OutputStream serialOut;
         
-        SerialOutputPipe(InputStream in) {
-            this.in = in;
+        SerialOutputPipe(InputStream stdout, OutputStream serialOut) {
+            this.in = stdout;
+            this.serialOut = serialOut;
         }
         
         @Override
@@ -270,7 +232,7 @@ public class SerialCommunicationService extends CommunicationService {
             int nsent = 0;
             try {
                 for (int b = in.read(); b >= 0; b = in.read()) {
-                    port.writeByte((byte)b);
+                    serialOut.write(b);
                     if (progress != null) {
                         nsent += 1;
                         if ((nsent % 1024) == 0) {
@@ -283,9 +245,14 @@ public class SerialCommunicationService extends CommunicationService {
                 }
             } catch (IOException e) {
                 getLogger().log(Level.SEVERE, null, e);
-            } catch (SerialPortException e) {
-                getLogger().severe(e.getMessage());
+            } finally {
+                try {
+                    in.close();
+                    serialOut.close();
+                } catch (IOException ignored) {
+                }
             }
+            
         }
         
     }
@@ -293,31 +260,28 @@ public class SerialCommunicationService extends CommunicationService {
     private class SerialInputPipe implements Runnable {
         
         private final OutputStream out;
-        SerialInputPipe(OutputStream out) {
+        private final InputStream serialIn;
+        SerialInputPipe(OutputStream out, InputStream serialIn) {
             this.out = out;
+            this.serialIn = serialIn;
         }
 
         @Override
         public void run() {
             byte[] buff = new byte[1024];
             try {
-                for (byte[] bytes = port.readBytes(); !quit; bytes = port.readBytes()) {
-                    if (bytes != null) {
-                        out.write(bytes);
-                        out.flush();
-                    } else {
-                        try {
-                            Thread.sleep(1);
-                        } catch (InterruptedException ex) {
-                            quit = true;
-                        }
-                    }
+                for (int b = serialIn.read(); b != -1; b = serialIn.read()) {
+                    out.write(b);                   
+                    out.flush();
                 }
-                
            } catch (IOException e) {
                 getLogger().log(Level.SEVERE, null, e);
-            } catch (SerialPortException e) {
-                getLogger().severe(e.getMessage());
+            } finally {
+                try {
+                    out.close();
+                    serialIn.close();
+                } catch (IOException ignored) {
+                }
             }
 
         }

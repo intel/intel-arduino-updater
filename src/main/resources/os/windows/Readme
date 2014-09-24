@@ -1,0 +1,5 @@
+
+This is a binary replease of lsz and bash and .dlls from cygwin.
+
+The contents of this directory should be placed in 
+<arduino>hardware\tools\x86\bin

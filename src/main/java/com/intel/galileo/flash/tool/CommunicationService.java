@@ -30,7 +30,9 @@ public abstract class CommunicationService {
         Class<CommunicationService> c = CommunicationService.class;
         ServiceLoader<CommunicationService> available = ServiceLoader.load(c);
         for (CommunicationService link : available) {
-            services.add(link);
+            if (link.isSupportedOnThisOS()) {
+                services.add(link);
+            }
         }
         return services;
     }
@@ -95,6 +97,13 @@ public abstract class CommunicationService {
     public String toString() {
         return getServiceName();
     }
+    
+    /**
+     * Is the service supported on the os currently being run on.
+     * 
+     * @return 
+     */
+    public abstract boolean isSupportedOnThisOS();
     
     public interface FileProgress {
         
