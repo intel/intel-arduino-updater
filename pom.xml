@@ -11,6 +11,14 @@
         <maven.compiler.target>1.6</maven.compiler.target>
     </properties>
     
+    <pluginRepositories>
+        <pluginRepository>
+            <id>objectstyle</id>
+            <name>ObjectStyle Repository</name>
+            <url>http://maven.objectstyle.org/nexus/content/repositories/releases</url>
+            <layout>default</layout>
+        </pluginRepository>
+    </pluginRepositories>
     <build>
         <plugins>
             <plugin>
@@ -33,22 +41,48 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- native application launcher, 
+                 see http://wiki.wocommunity.org/display/WOL/maven-japplication-plugin 
+                 Currently needs a jar manually installed into the repository
+            -->
+            <plugin>
+                <groupId>org.objectstyle.japp</groupId>
+                <artifactId>japp-maven-plugin</artifactId>
+                <version>3.0</version>
+                <executions>
+                    <execution>
+                        <id>java6</id>
+                        <configuration>
+                            <name>GalileoFirmwareUpdate</name>
+                            <mainClass>com.intel.galileo.flash.tool.FirmwareUpdateTool</mainClass>
+                            <icon>src/japplication/resources/My.icns</icon>
+                            <os>mac</os>
+                            <flavor>osx_legacy</flavor>
+                            <jvm>1.6+</jvm>
+                            <jvmOptions>-Xmx512m -Dapple.laf.useScreenMenuBar=true</jvmOptions>
+                        </configuration>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>japp</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-                        
 
-  <dependencies>
-    <dependency>
-        <groupId>org.scream3r</groupId>
-        <artifactId>jssc</artifactId>
-        <version>2.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.10</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.scream3r</groupId>
+            <artifactId>jssc</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>
