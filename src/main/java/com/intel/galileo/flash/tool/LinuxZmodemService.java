@@ -9,13 +9,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
+ * Implements a zmodem based serial connection service for linux.
  */
-public class LinuxZmodemService extends SerialCommunicationService {
+public class LinuxZmodemService extends FileDeviceZmodemService {
 
     @Override
     public boolean isSupportedOnThisOS() {
@@ -45,47 +43,12 @@ public class LinuxZmodemService extends SerialCommunicationService {
         }
         return devices;
     }
-    
-    @Override
-    public boolean openConnection(String portName) {
-        if (super.openConnection(portName)) {
-            try {
-                if (zmodem == null) {
-                    zmodem = copyZmodemResource("lsz");
-                    zmodem.setExecutable(true);
-                }
-                device = new File("/dev", portName);
-                if (device.exists()) {
-                    return true;
-                }
-            } catch (IOException ioe) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ioe);
-            }
-        }
-        return false;
-    }
 
     @Override
-    public boolean isConnectionOpen() {
-        return (super.isConnectionOpen() &&(zmodem != null) && (device != null));
+    protected File installResources() throws IOException {
+        File z = copyZmodemResource("lsz");
+        z.setExecutable(true);
+        return z;
     }
-    
-    @Override
-    public void closeConnection() {
-        device = null;
-    }
-
-    @Override
-    public String sendCommand(String remoteCommand) throws Exception {
-        return zmodemSendCommand(zmodem, remoteCommand, device);
-    }
-
-    @Override
-    public void sendFile(File f, FileProgress p) throws Exception {
-        zmodemSendFile(zmodem, f, p, device);
-    }
-    
-    private File device;
-    private File zmodem;
-
+   
 }

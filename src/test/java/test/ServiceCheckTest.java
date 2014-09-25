@@ -56,22 +56,24 @@ public class ServiceCheckTest {
     
     /**
      * This only works if there are actual connections to a board and if they
-     * can be automatically discovered.  Uncomment the test annotation to run
+     * can be automatically discovered. Uncomment the test annotation to run
      * manually for diagnostics.
      */
     //@Test
     public void testVersionCommandOnServices() {
-        List<CommunicationService> services = 
-            CommunicationService.getCommunicationServices();
+        List<CommunicationService> services
+                = CommunicationService.getCommunicationServices();
         for (CommunicationService service : services) {
-            System.out.println("Service: "+service.getServiceName());
-            List<String> ports = service.getAvailableConnections();
-            System.out.printf("There are %d connections:\n", ports.size());
-            for (String port : ports) {
-                System.out.println(port);
-            }
-            if (! ports.isEmpty()) {
-                requestBoardVersion(service, ports.get(0));
+            if (service.isSupportedOnThisOS()) {
+                System.out.println("Service: " + service.getServiceName());
+                List<String> ports = service.getAvailableConnections();
+                System.out.printf("There are %d connections:\n", ports.size());
+                for (String port : ports) {
+                    System.out.println(port);
+                }
+                if (!ports.isEmpty()) {
+                    requestBoardVersion(service, ports.get(0));
+                }
             }
         }
     }

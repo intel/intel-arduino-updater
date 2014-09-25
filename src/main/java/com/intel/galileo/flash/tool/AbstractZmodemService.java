@@ -8,7 +8,6 @@ package com.intel.galileo.flash.tool;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jssc.SerialPort;
 
 /**
  * Implementation of the CommunicationLink service to communicate with a 
@@ -27,11 +25,15 @@ import jssc.SerialPort;
  * connect to the board.  A zmodem program (lsz) is used as the transfer 
  * mechanism.  It is a native program that is unpacked into a temporary file
  * appropriate for the platform at runtime.
+ * <p>
+ * The lsz program communicates through stdio.  It is run as a child process
+ * and the input/output is piped to a serial transport.  For commands, the 
+ * output is emitted via stderr by lsz.  This is piped to a string buffer for
+ * later processing if desired.
  */
-public abstract class SerialCommunicationService extends CommunicationService {
+public abstract class AbstractZmodemService extends CommunicationService {
 
-    protected File zmodemDir;
-    
+        
     @Override
     public String getServiceName() {
         return "Serial Connection Service";
@@ -43,8 +45,8 @@ public abstract class SerialCommunicationService extends CommunicationService {
     }
 
     @Override
-    public boolean isConnectionOpen() {
-        return (zmodemDir != null);
+    public final boolean isConnectionOpen() {
+        return (zmodemDir != null) && (zmodem != null) && isSerialTransportOpen();
     }
     
     /**
@@ -55,56 +57,98 @@ public abstract class SerialCommunicationService extends CommunicationService {
      * @return 
      */
     @Override
-    public boolean openConnection(String portName) {
+    public final boolean openConnection(String portName) {
         try {
-            File f = File.createTempFile("bogus", "");
-            File tmpDir = f.getParentFile();
-            f.delete();
-            zmodemDir = new File(tmpDir, "zmodem");
-            zmodemDir.mkdir();
-            zmodemDir.deleteOnExit();
+            if (zmodemDir == null) {
+                File f = File.createTempFile("bogus", "");
+                File tmpDir = f.getParentFile();
+                f.delete();
+                zmodemDir = new File(tmpDir, "zmodem");
+                zmodemDir.mkdir();
+                zmodemDir.deleteOnExit();
+                zmodem = installResources();
+            }
+            return openSerialTransport(portName);
         } catch (IOException ex) {
             zmodemDir = null;
-            Logger.getLogger(SerialCommunicationService.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
+            Logger.getLogger(AbstractZmodemService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return true;
+        return false;
     }
     
-    @Override
-    public void closeConnection() {
-    }
+    /**
+     * Subclasses should implement to install the zmodem program and any 
+     * support files needed to the zmodemDir temporary directory.
+     * 
+     * @return  the location of the native zmodem program to run
+     * @throws IOException 
+     */
+    protected abstract File installResources() throws IOException;
         
+    @Override
+    public final void closeConnection() {
+        closeSerialTransport();
+    }
+
     /**
      * Run the native zmodem program which uses stdio for communication and 
      * pipe its input/output to the given serial device.
      * 
-     * @param zmodem  The path to the native zmodem program
      * @param remoteCommand  The remote command to execute
-     * @param device  the serial device to use.
      * @return  The output of the command.
      * @throws Exception 
      */
-    protected String zmodemSendCommand(File zmodem, String remoteCommand, File device) throws Exception {
+    @Override
+    public final String sendCommand(String remoteCommand) throws Exception {
         List<String> cmd = new LinkedList<String>();
         cmd.add(zmodem.getAbsolutePath());
         cmd.add("--escape");
         cmd.add("--verbose");
         cmd.add("-c");
         cmd.add(remoteCommand);
-        return zmodemOperation(cmd, null, new FileOutputStream(device), new FileInputStream(device));
+        return zmodemOperation(cmd, null);
+    }
+
+    @Override
+    public final void sendFile(File f, FileProgress p) throws Exception {
+        List<String> cmd = new LinkedList<String>();
+        cmd.add(zmodem.getAbsolutePath());
+        cmd.add("--escape");
+        cmd.add("--binary");
+        cmd.add("--overwrite");
+        cmd.add("--verbose");
+        cmd.add(f.getCanonicalPath());
+        zmodemOperation(cmd, p);
     }
     
-    protected String zmodemOperation(List<String> cmd, FileProgress progress, OutputStream out, InputStream in) throws Exception {
-        this.progress = progress;
+    /**
+     * Create a Runnable that can be placed in a thread to pipe output from the
+     * lsz program to the serial output transport.  If progress isn't null, 
+     * updates should be provided through that interface.
+     * 
+     * @param stdout  the standard output of the lsz program.
+     * @param progress
+     * @return 
+     */
+    protected abstract Runnable createSerialOutputPipe(InputStream stdout, FileProgress progress);
+    
+    protected abstract Runnable createSerialInputPipe(OutputStream stdin);
+    
+    protected abstract boolean openSerialTransport(String portName);
+    
+    protected abstract void closeSerialTransport();
+    
+    protected abstract boolean isSerialTransportOpen();
+    
+    protected String zmodemOperation(List<String> cmd, FileProgress progress) throws Exception {
         ProcessBuilder pb = new ProcessBuilder(cmd);
         quit = false;
         final Process p = pb.start();
         RemoteOutputPipe outputReader = new RemoteOutputPipe(p.getErrorStream());
-        Thread serialOut = new Thread(new SerialOutputPipe(p.getInputStream(), out));
+        Thread serialOut = new Thread(createSerialOutputPipe(p.getInputStream(), progress));
         serialOut.setName("serial-output");
         serialOut.start();
-        Thread serialIn = new Thread(new SerialInputPipe(p.getOutputStream(), in));
+        Thread serialIn = new Thread(createSerialInputPipe(p.getOutputStream()));
         serialIn.setName("serial-input");
         serialIn.start();
         Thread t = new Thread(outputReader);
@@ -121,19 +165,8 @@ public abstract class SerialCommunicationService extends CommunicationService {
         return outputReader.getOutput();
     }
 
-    public void zmodemSendFile(File zmodem, File f, FileProgress p, File device) throws Exception {
-        List<String> cmd = new LinkedList<String>();
-        cmd.add(zmodem.getAbsolutePath());
-        cmd.add("--escape");
-        cmd.add("--binary");
-        cmd.add("--overwrite");
-        cmd.add("--verbose");
-        cmd.add(f.getCanonicalPath());
-        zmodemOperation(cmd, p, new FileOutputStream(device), new FileInputStream(device));
-    }
-    
-    Logger getLogger() {
-        return Logger.getLogger(SerialCommunicationService.class.getName());
+    protected Logger getLogger() {
+        return Logger.getLogger(AbstractZmodemService.class.getName());
     }
         
     private File copyResourceToTmpFile(InputStream res, File tmp)
@@ -155,11 +188,25 @@ public abstract class SerialCommunicationService extends CommunicationService {
 
     }
     
+    /**
+     * Opens a stream to fetch the given resource name.  The name should 
+     * not include the OS as that gets added by this method.
+     * 
+     * @param name  path of the resource (below the OS part of the path).
+     * @return  The stream to read the resource, or null if it can't be read.
+     */
     private InputStream getZmodemResource(String name) {        
         String path = getOSResourcePath() + name;
         return getClass().getResourceAsStream(path);
     }
     
+    /**
+     * Copy a resource to the zmodem temporary directory.
+     * 
+     * @param name
+     * @return
+     * @throws IOException 
+     */
     File copyZmodemResource(String name) throws IOException {
         InputStream in = getZmodemResource(name);
         File tmp = new File(zmodemDir, name);
@@ -174,11 +221,23 @@ public abstract class SerialCommunicationService extends CommunicationService {
     
     protected static final String OS_PROPERTY_KEY = "os.name";
     
-    boolean quit = false;
-    private SerialPort port;
-    private File zmodem;
-    private FileProgress progress;
+    protected volatile boolean quit = false;
     
+    /**
+     * Temporary directory where the native zmodem program and its supporting
+     * files are installed.
+     */
+    protected File zmodemDir;
+    
+    /**
+     * Location of the actual zmodem executable (lsz).
+     */
+    private File zmodem;
+    
+    /**
+     * Runnable to capture the output of remote commands 
+     * (basically capture stderr from the lsz program).
+     */
     private class RemoteOutputPipe implements Runnable {
 
         private final InputStream es;
@@ -214,77 +273,4 @@ public abstract class SerialCommunicationService extends CommunicationService {
         }
     }
     
-    /**
-     * Copies stdout from the process and sends it to the serial output.
-     */
-    private class SerialOutputPipe implements Runnable {
-
-        private final InputStream in;
-        private final OutputStream serialOut;
-        
-        SerialOutputPipe(InputStream stdout, OutputStream serialOut) {
-            this.in = stdout;
-            this.serialOut = serialOut;
-        }
-        
-        @Override
-        public void run() {
-            int nsent = 0;
-            try {
-                for (int b = in.read(); b >= 0; b = in.read()) {
-                    serialOut.write(b);
-                    if (progress != null) {
-                        nsent += 1;
-                        if ((nsent % 1024) == 0) {
-                            progress.bytesSent(nsent);
-                        }
-                   }
-                }
-                if (progress != null) {
-                    progress.bytesSent(nsent);
-                }
-            } catch (IOException e) {
-                getLogger().log(Level.SEVERE, null, e);
-            } finally {
-                try {
-                    in.close();
-                    serialOut.close();
-                } catch (IOException ignored) {
-                }
-            }
-            
-        }
-        
-    }
-    
-    private class SerialInputPipe implements Runnable {
-        
-        private final OutputStream out;
-        private final InputStream serialIn;
-        SerialInputPipe(OutputStream out, InputStream serialIn) {
-            this.out = out;
-            this.serialIn = serialIn;
-        }
-
-        @Override
-        public void run() {
-            byte[] buff = new byte[1024];
-            try {
-                for (int b = serialIn.read(); b != -1; b = serialIn.read()) {
-                    out.write(b);                   
-                    out.flush();
-                }
-           } catch (IOException e) {
-                getLogger().log(Level.SEVERE, null, e);
-            } finally {
-                try {
-                    out.close();
-                    serialIn.close();
-                } catch (IOException ignored) {
-                }
-            }
-
-        }
-        
-    }
 }
