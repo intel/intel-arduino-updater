@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.intel.galileo.flash.tool;
 
 import java.io.IOException;
@@ -55,31 +54,31 @@ public abstract class JsscZmodemService extends AbstractZmodemService {
     protected boolean isSerialTransportOpen() {
         return (port != null) && port.isOpened();
     }
-        
+
     private SerialPort port;
-    
-        private class SerialOutputPipe implements Runnable {
+
+    private class SerialOutputPipe implements Runnable {
 
         private final InputStream in;
         private final FileProgress progress;
-        
+
         SerialOutputPipe(InputStream in, FileProgress progress) {
             this.in = in;
             this.progress = progress;
         }
-        
+
         @Override
         public void run() {
             int nsent = 0;
             try {
                 for (int b = in.read(); b >= 0; b = in.read()) {
-                    port.writeByte((byte)b);
+                    port.writeByte((byte) b);
                     if (progress != null) {
                         nsent += 1;
                         if ((nsent % 1024) == 0) {
                             progress.bytesSent(nsent);
                         }
-                   }
+                    }
                 }
                 if (progress != null) {
                     progress.bytesSent(nsent);
@@ -90,12 +89,13 @@ public abstract class JsscZmodemService extends AbstractZmodemService {
                 getLogger().severe(e.getMessage());
             }
         }
-        
+
     }
-    
+
     private class SerialInputPipe implements Runnable {
-        
+
         private final OutputStream out;
+
         SerialInputPipe(OutputStream out) {
             this.out = out;
         }
@@ -116,14 +116,14 @@ public abstract class JsscZmodemService extends AbstractZmodemService {
                         }
                     }
                 }
-                
+
             } catch (IOException ioe) {
                 getLogger().severe(ioe.getMessage());
             } catch (SerialPortException e) {
                 getLogger().severe(e.getMessage());
             }
         }
-        
+
     }
 
 }

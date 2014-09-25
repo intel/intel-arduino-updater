@@ -141,7 +141,7 @@ public abstract class AbstractZmodemService extends CommunicationService {
     protected abstract boolean isSerialTransportOpen();
     
     protected String zmodemOperation(List<String> cmd, FileProgress progress) throws Exception {
-        ProcessBuilder pb = new ProcessBuilder(cmd);
+        ProcessBuilder pb = createProcessBuilder(cmd);
         quit = false;
         final Process p = pb.start();
         RemoteOutputPipe outputReader = new RemoteOutputPipe(p.getErrorStream());
@@ -163,6 +163,18 @@ public abstract class AbstractZmodemService extends CommunicationService {
             throw new Exception(msg);
         }
         return outputReader.getOutput();
+    }
+    
+    /**
+     * Create the ProcessBuilder used to create a child process to run the lsz
+     * program.  This is a hook for subclasses to customize the creation of the
+     * process.
+     * 
+     * @param cmd
+     * @return 
+     */
+    protected ProcessBuilder createProcessBuilder(List<String> cmd) {
+        return new ProcessBuilder(cmd);
     }
 
     protected Logger getLogger() {

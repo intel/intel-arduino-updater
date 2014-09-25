@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import jssc.SerialPortList;
 
 /**
@@ -40,7 +41,7 @@ public class WindowsZmodemService extends JsscZmodemService {
 
     @Override
     protected String getOSResourcePath() {
-        return "os/windows/";
+        return "/os/windows/";
     }
 
     @Override
@@ -49,9 +50,6 @@ public class WindowsZmodemService extends JsscZmodemService {
         return Arrays.asList(names);
     }
     
-    private String portName;
-    private boolean resourcesInstalled = false;
-
     @Override
     protected File installResources() throws IOException {
         for (String name : windowsResources) {
@@ -59,5 +57,19 @@ public class WindowsZmodemService extends JsscZmodemService {
         }
         return new File(zmodemDir, "lsz.exe");
     }
+
+    static final String PATH_KEY = "Path";
+    @Override
+    protected ProcessBuilder createProcessBuilder(List<String> cmd) {
+        ProcessBuilder pb = super.createProcessBuilder(cmd);
+        Map<String,String> env = pb.environment();
+        String path = env.get(PATH_KEY);
+        path = zmodemDir.getAbsolutePath() + ";" + path;
+        env.put(PATH_KEY, path);
+        getLogger().info("lsz path: "+path);
+        return pb;
+    }
+    
+    
     
 }
