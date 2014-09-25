@@ -42,7 +42,7 @@
                 </executions>
             </plugin>
             <!-- native application launcher, 
-                 see http://wiki.wocommunity.org/display/WOL/maven-japplication-plugin 
+                 see https://github.com/andrus/japp-maven-plugin
                  Currently needs a jar manually installed into the repository
             -->
             <plugin>
