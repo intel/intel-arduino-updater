@@ -83,7 +83,7 @@ public abstract class FileDeviceZmodemService extends AbstractZmodemService {
      * @return
      */
     protected File portToDevice(String portName) {
-        return new File("/dev", portName);
+        return new File(portName);
 
     }
 

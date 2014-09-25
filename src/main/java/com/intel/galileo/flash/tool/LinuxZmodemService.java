@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Implements a zmodem based serial connection service for linux.
  */
-public class LinuxZmodemService extends FileDeviceZmodemService {
+public class LinuxZmodemService extends JsscZmodemService {
 
     @Override
     public boolean isSupportedOnThisOS() {
@@ -38,7 +38,7 @@ public class LinuxZmodemService extends FileDeviceZmodemService {
         for (File f : dev.listFiles()) {
             String name = f.getName();
             if (name.startsWith("ttyACM")) {
-                devices.add(name);
+                devices.add(f.getAbsolutePath());
             }
         }
         return devices;

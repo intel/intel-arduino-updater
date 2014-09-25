@@ -14,7 +14,7 @@ import jssc.SerialPortList;
 /**
  * TODO - Finish implementing this class (It isn't currently functional).
  */
-public class WindowsZmodemService extends FileDeviceZmodemService {
+public class WindowsZmodemService extends JsscZmodemService {
     
     private String[] windowsResources = {
         "bash.exe",

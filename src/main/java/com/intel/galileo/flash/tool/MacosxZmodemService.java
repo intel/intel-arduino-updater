@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Implements a zmodem based serial connection service for Mac OS/X
  */
-public class MacosxZmodemService extends FileDeviceZmodemService {
+public class MacosxZmodemService extends JsscZmodemService {
 
     @Override
     public boolean isSupportedOnThisOS() {
@@ -33,7 +33,7 @@ public class MacosxZmodemService extends FileDeviceZmodemService {
         for (File f : dev.listFiles()) {
             String name = f.getName();
             if (name.startsWith("cu.usbmodem")) {
-                devices.add(name);
+                devices.add(f.getAbsolutePath());
             }
         }
         return devices;
