@@ -24,8 +24,9 @@ import java.util.logging.Logger;
  */
 public class FirmwareCapsule {
     
-    FirmwareCapsule(URL u) {
+    FirmwareCapsule(URL u, File cacheDir) {
         location = u;
+        this.cacheDir = cacheDir;
     }
 
     /**
@@ -72,12 +73,7 @@ public class FirmwareCapsule {
     private synchronized void checkCacheAndLoadIfNeeded() {
         if (! cacheLoaded) {
             try {
-                String prefix = toString();
-                if (prefix.endsWith(CAP_SUFFIX))
-                    prefix = prefix.substring(0, prefix.length()-CAP_SUFFIX.length());
-                    
-                cache = File.createTempFile(prefix, CAP_SUFFIX);
-                cache.deleteOnExit();
+                cache = new File(cacheDir, toString());
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 InputStream is = location.openStream();
                 OutputStream out = new FileOutputStream(cache);
@@ -143,5 +139,6 @@ public class FirmwareCapsule {
     private String md5sum;
     private GalileoVersion version;
     private File cache;
+    private final File cacheDir;
     private final URL location;
 }

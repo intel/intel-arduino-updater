@@ -8,6 +8,7 @@ package com.intel.galileo.flash.tool;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import jssc.SerialPortList;
@@ -55,21 +56,50 @@ public class WindowsZmodemService extends JsscZmodemService {
         for (String name : windowsResources) {
             copyZmodemResource(name);
         }
+        for (String name : windowsResources) {
+            File f = new File(zmodemDir, name);
+            f.setExecutable(true);
+        }
         return new File(zmodemDir, "lsz.exe");
     }
 
     static final String PATH_KEY = "Path";
+    
     @Override
     protected ProcessBuilder createProcessBuilder(List<String> cmd) {
         ProcessBuilder pb = super.createProcessBuilder(cmd);
         Map<String,String> env = pb.environment();
         String path = env.get(PATH_KEY);
-        path = zmodemDir.getAbsolutePath() + ";" + path;
+        path = (path != null) ? zmodemDir.getAbsolutePath() + ";" + path : 
+                zmodemDir.getAbsolutePath();
+        path += ";.";
         env.put(PATH_KEY, path);
-        getLogger().info("lsz path: "+path);
+        getLogger().info("process path: "+path);
         return pb;
     }
-    
+
+    @Override
+    public void sendFile(File f, FileProgress p) throws Exception {
+        port.closePort();
+        List<String> cmd = new LinkedList<String>();
+        String path = zmodemDir.getPath().replace("\\", "/");
+        cmd.add(path + "/bash.exe");
+        cmd.add("--verbose");
+        cmd.add("--noprofile");
+        cmd.add(path+"/upgrade.sh");
+        cmd.add(path);
+        cmd.add(f.getName());
+        cmd.add(port.getPortName());
+        getLogger().info(cmd.toString());
+        zmodemOperation(cmd, p);
+        port.openPort();
+    }
+
+    @Override
+    public boolean isProgressSupported() {
+        return false;
+    }
+
     
     
 }

@@ -105,6 +105,19 @@ public abstract class CommunicationService {
      */
     public abstract boolean isSupportedOnThisOS();
     
+    /**
+     * Set the location for files used by the service.
+     * 
+     * @param dir 
+     */
+    public abstract void setFileLocation(File dir);
+    
+    /**
+     * Is progress update supported with file transfers?
+     * @return 
+     */
+    public abstract boolean isProgressSupported();
+    
     public interface FileProgress {
         
         /**

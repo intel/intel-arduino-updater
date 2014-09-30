@@ -55,7 +55,7 @@ public abstract class JsscZmodemService extends AbstractZmodemService {
         return (port != null) && port.isOpened();
     }
 
-    private SerialPort port;
+    protected SerialPort port;
 
     private class SerialOutputPipe implements Runnable {
 

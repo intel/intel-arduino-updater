@@ -48,6 +48,16 @@ public abstract class AbstractZmodemService extends CommunicationService {
     public final boolean isConnectionOpen() {
         return (zmodemDir != null) && (zmodem != null) && isSerialTransportOpen();
     }
+
+    @Override
+    public void setFileLocation(File dir) {
+        zmodemDir = dir;
+        try {
+            zmodem = installResources();
+        } catch (IOException ex) {
+            Logger.getLogger(AbstractZmodemService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     /**
      * Implemented to create a temporary directory for the native zmodem
@@ -110,15 +120,21 @@ public abstract class AbstractZmodemService extends CommunicationService {
     }
 
     @Override
-    public final void sendFile(File f, FileProgress p) throws Exception {
+    public void sendFile(File f, FileProgress p) throws Exception {
         List<String> cmd = new LinkedList<String>();
-        cmd.add(zmodem.getAbsolutePath());
+        cmd.add(zmodem.getPath().replace("\\", "/"));
         cmd.add("--escape");
         cmd.add("--binary");
         cmd.add("--overwrite");
         cmd.add("--verbose");
-        cmd.add(f.getCanonicalPath());
+        cmd.add(f.getName());
+        getLogger().info(cmd.toString());
         zmodemOperation(cmd, p);
+    }
+
+    @Override
+    public boolean isProgressSupported() {
+        return true;
     }
     
     /**
@@ -174,7 +190,9 @@ public abstract class AbstractZmodemService extends CommunicationService {
      * @return 
      */
     protected ProcessBuilder createProcessBuilder(List<String> cmd) {
-        return new ProcessBuilder(cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(zmodemDir);
+        return pb;
     }
 
     protected Logger getLogger() {

@@ -8,6 +8,7 @@ package com.intel.galileo.flash.tool;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ public class GalileoFirmwareUpdater {
      */
     public GalileoFirmwareUpdater(CommunicationService s, String c) {
         props = new PropertyChangeSupport(this);
+        files = createFileDirectory();
         services = CommunicationService.getCommunicationServices();
         if (!services.isEmpty()) {
             // default service
@@ -74,7 +76,7 @@ public class GalileoFirmwareUpdater {
             if (u == null) {
                 throw new InternalError("Invalid capsule url: "+path);
             }
-            FirmwareCapsule cap = new FirmwareCapsule(u);
+            FirmwareCapsule cap = new FirmwareCapsule(u,files);
             capsules.add(cap);
             if (capsuleName.equals(DEFAULT_CAPSULE)) {
                 setUpdate(cap);
@@ -91,6 +93,13 @@ public class GalileoFirmwareUpdater {
         this.props.removePropertyChangeListener(listener);
     }
  
+    protected File createFileDirectory() {
+        String home = System.getProperty("user.home");
+        File f = new File(home, ".galileo");
+        f.mkdir();
+        return f;
+    }
+    
     /**
      * Fetch the list of communication services that have been discovered to
      * communicate with the board.  This is independent of the actual connection
@@ -118,7 +127,12 @@ public class GalileoFirmwareUpdater {
      */
     public final synchronized void setCommunicationService(
             CommunicationService communicationService) {
+        CommunicationService old = this.communicationService;
         this.communicationService = communicationService;
+        if (this.communicationService != null) {
+            this.communicationService.setFileLocation(files);
+        }
+        this.props.firePropertyChange("communicationService", old, this.communicationService);
     }
 
     /**
@@ -406,6 +420,7 @@ public class GalileoFirmwareUpdater {
         }
     }
     
+    private File files;
     private PropertyChangeSupport props;
     private GalileoVersion capsuleVersion;
     private GalileoVersion currentBoardVersion;
