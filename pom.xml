@@ -1,88 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- 
+--><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.intel.galileo</groupId>
-    <artifactId>flash-tool</artifactId>
+    <artifactId>firmware-update-modules</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-    </properties>
-    
-    <pluginRepositories>
-        <pluginRepository>
-            <id>objectstyle</id>
-            <name>ObjectStyle Repository</name>
-            <url>http://maven.objectstyle.org/nexus/content/repositories/releases</url>
-            <layout>default</layout>
-        </pluginRepository>
-    </pluginRepositories>
+    <packaging>pom</packaging>
+    <name>firmware-update-modules</name>
+    <description>
+	collection of modules to build galileo firmware update tool.
+    </description>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.intel.galileo.flash.tool.FirmwareUpdateTool</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- native application launcher, 
-                 see https://github.com/andrus/japp-maven-plugin
-                 Currently needs a jar manually installed into the repository
-            -->
-            <plugin>
-                <groupId>org.objectstyle.japp</groupId>
-                <artifactId>japp-maven-plugin</artifactId>
-                <version>3.0</version>
-                <executions>
-                    <execution>
-                        <id>java6</id>
-                        <configuration>
-                            <name>GalileoFirmwareUpdate</name>
-                            <mainClass>com.intel.galileo.flash.tool.FirmwareUpdateTool</mainClass>
-                            <icon>src/japplication/resources/My.icns</icon>
-                            <os>mac</os>
-                            <flavor>osx_legacy</flavor>
-                            <jvm>1.6+</jvm>
-                            <jvmOptions>-Xmx512m -Dapple.laf.useScreenMenuBar=true</jvmOptions>
-                        </configuration>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>japp</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <debug>true</debug>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.scream3r</groupId>
-            <artifactId>jssc</artifactId>
-            <version>2.8.0</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
+    <modules>
+        <module>java-application-bundler</module>
+        <module>application</module>
+    </modules>
 </project>

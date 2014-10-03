@@ -1,2 +1,3 @@
-target
-dependency-reduced-pom.xml
+application/target
+application/dependency-reduced-pom.xml
+java-application-bundler/target
