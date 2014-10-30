@@ -42,7 +42,8 @@ public class FirmwareUpdateAction extends AbstractAction {
                     "Preferences not yet properly set",
                     DIALOG_TITLE,
                     ERROR_MESSAGE);
-            return;
+			//temporary skip until lsz issue is fixed
+            //return;
         }
 
         windowReturn = JOptionPane.showConfirmDialog(parent,
