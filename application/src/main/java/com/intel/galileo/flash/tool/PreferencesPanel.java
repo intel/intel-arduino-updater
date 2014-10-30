@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 /**
  * A JPanel to select the preferences for driving the firmware update.
@@ -33,26 +35,32 @@ public class PreferencesPanel extends javax.swing.JPanel {
             for (CommunicationService s : services) {
                 servicesComboBox.addItem(s);                        
             }
-            CommunicationService current = galileo.getCommunicationService();
-            if (current != null) {
-                servicesComboBox.setSelectedItem(current);
-                jLabel2.setText(current.getConnectionLabel());
-                List<String> connections = current.getAvailableConnections();
-                connectionComboBox.removeAllItems();
-                for (String connection : connections) {
-                    connectionComboBox.addItem(connection);
-                }
-                String currentConnection = galileo.getCommunicationConnection();
-                if (currentConnection != null) {
-                    connectionComboBox.setSelectedItem(currentConnection);
-                }
-            }
+            populateConnections(galileo);
+            
+            
         }
         
-        updateBoardVersion();
+        //updateBoardVersion();
         updateFirmwareVersion();
     }
     
+    private void populateConnections(GalileoFirmwareUpdater galileo) {
+        CommunicationService current = galileo.getCommunicationService();
+        if (current != null) {
+            servicesComboBox.setSelectedItem(current);
+            jLabel2.setText(current.getConnectionLabel());
+            List<String> connections = current.getAvailableConnections();
+            connectionComboBox.removeAllItems();
+            for (String connection : connections) {
+                connectionComboBox.addItem(connection);
+            }
+            String currentConnection = galileo.getCommunicationConnection();
+            if (currentConnection != null) {
+                connectionComboBox.setSelectedItem(currentConnection);
+            }
+        }
+    }
+
     private void initFirmware() {
         List<FirmwareCapsule> available = galileo.getAvailableFirmware();
         if (! available.isEmpty()) {
@@ -185,6 +193,12 @@ public class PreferencesPanel extends javax.swing.JPanel {
         jLabel1.setText("Service:");
 
         servicesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));
+	servicesComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                serviceComboBoxActionPerformed(evt);
+            }
+	});	
+
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel2.setText("Connection:");
@@ -198,6 +212,23 @@ public class PreferencesPanel extends javax.swing.JPanel {
             }
         });
 
+	connectionComboBox.addPopupMenuListener(new  PopupMenuListener() {
+
+	    @Override
+	    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		populateConnections(galileo);
+	    }
+
+	    @Override
+	    public void popupMenuWillBecomeInvisible(PopupMenuEvent event) {
+
+	    }
+
+	    @Override
+	    public void popupMenuCanceled(PopupMenuEvent event) {
+
+      	    }
+	});
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText("Firmware:");
 
@@ -287,12 +318,21 @@ public class PreferencesPanel extends javax.swing.JPanel {
         
     }//GEN-LAST:event_capsuleVersionActionPerformed
 
+    private void serviceComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionComboBoxActionPerformed
+        populateConnections(galileo);
+	System.out.println("service event");
+        //boardVersion.setText("");
+	
+        //updateBoardVersion();
+    }//GEN-LAST:event_connectionComboBoxActionPerformed
+
     private void connectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionComboBoxActionPerformed
 
         String connection = (String)connectionComboBox.getSelectedItem();
         galileo.setCommunicationConnection(connection);
         boardVersion.setText("");
-        updateBoardVersion();
+	
+        //updateBoardVersion();
     }//GEN-LAST:event_connectionComboBoxActionPerformed
 
     private void firmwareChoiceChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_firmwareChoiceChanged
