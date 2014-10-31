@@ -36,7 +36,10 @@ public class PreferencesPanel extends javax.swing.JPanel {
                 servicesComboBox.addItem(s);                        
             }
             populateConnections(galileo);
-            
+            String currentConnection = galileo.getCommunicationConnection();
+            if (currentConnection != null) {
+                connectionComboBox.setSelectedItem(currentConnection);
+            }
             
         }
         
@@ -54,10 +57,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
             for (String connection : connections) {
                 connectionComboBox.addItem(connection);
             }
-            String currentConnection = galileo.getCommunicationConnection();
-            if (currentConnection != null) {
-                connectionComboBox.setSelectedItem(currentConnection);
-            }
+            
         }
     }
 
@@ -313,16 +313,11 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
     private void capsuleVersionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_capsuleVersionActionPerformed
         
-        //capsuleVersion.setText("");
-        //updateBoardVersion();
         
     }//GEN-LAST:event_capsuleVersionActionPerformed
 
     private void serviceComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionComboBoxActionPerformed
-        populateConnections(galileo);
-	System.out.println("service event");
-        //boardVersion.setText("");
-	
+	populateConnections(galileo);
         //updateBoardVersion();
     }//GEN-LAST:event_connectionComboBoxActionPerformed
 
@@ -330,8 +325,9 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
         String connection = (String)connectionComboBox.getSelectedItem();
         galileo.setCommunicationConnection(connection);
-        boardVersion.setText("");
-	
+
+	//uncomment when lsz issue is resolved
+        //boardVersion.setText("");	
         //updateBoardVersion();
     }//GEN-LAST:event_connectionComboBoxActionPerformed
 
