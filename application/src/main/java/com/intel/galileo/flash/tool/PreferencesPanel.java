@@ -191,13 +191,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Service:");
-
-        servicesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));
-	servicesComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                serviceComboBoxActionPerformed(evt);
-            }
-	});	
+        servicesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));	
 
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -315,11 +309,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
         
         
     }//GEN-LAST:event_capsuleVersionActionPerformed
-
-    private void serviceComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionComboBoxActionPerformed
-	populateConnections(galileo);
-        //updateBoardVersion();
-    }//GEN-LAST:event_connectionComboBoxActionPerformed
 
     private void connectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionComboBoxActionPerformed
 
