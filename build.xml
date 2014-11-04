@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="firmware-update-tool" default="package" basedir=".">
+
+    <!-- ====================================================================== -->
+    <!-- Build environment properties                                           -->
+    <!-- ====================================================================== -->
+    <property name="build.name" value="${ant.project.name}"/>
+    <property name="build.version" value="1.0.0"/>
+
+    <property name="build.dir" location="${basedir}/output"/>
+    <property name="build.src.dir" location="${basedir}/src/main/java"/>
+    <property name="build.resources.dir" location="${basedir}/src/main/resources"/>
+    
+    <property name="build.classes.dir" location="${build.dir}/classes"/>
+    <property name="build.jarName" value="${build.name}-${build.version}"/>
+    <property name="build.mainClassName" value="com.intel.galileo.flash.tool.FirmwareUpdateTool"/>
+    
+    <property name="build.nativeLauncher.dir" location="${basedir}/native-launcher-libs"/>
+    <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j" />
+    <property name="build.appbundler.dir" location="${build.nativeLauncher.dir}" />
+    <property name="build.osx.appBundleName" value="FirmwareUpdateTool"/>
+    <property name="build.osx.friendlyName" value="Firmware Update Tool"/>
+    <property name="build.zipName" value="${build.name}-${build.version}"/>
+
+    <!-- ====================================================================== -->
+    <!-- Defining classpaths                                                    -->
+    <!-- ====================================================================== -->
+    <path id="build.classpath">
+        <pathelement location="${build.resources.dir}/"/>
+    </path>
+
+    <!-- ====================================================================== -->
+    <!-- Cleaning up target                                                     -->
+    <!-- ====================================================================== -->
+    <target name="clean" description="Clean the output directory">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- Compilation target                                                     -->
+    <!-- ====================================================================== -->
+    <target name="compile" description="Compile the code">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac target="1.6" source="1.6"
+               srcdir="${build.src.dir}" 
+               classpathref="build.classpath" 
+               destdir="${build.classes.dir}"/>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${build.resources.dir}"/>
+        </copy>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- Jar target before creating the native app                              -->
+    <!-- ====================================================================== -->
+    <target name="jar" depends="compile" description="Create the Jar">
+        <jar basedir="${build.classes.dir}"
+             jarfile="${build.dir}/${build.jarName}.jar" 
+             compress="true">
+             <manifest>
+                <attribute name="Main-Class" value="${build.mainClassName}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- Package the Jar into a native app                                      -->
+    <!-- ====================================================================== -->
+    <target name="package" depends="jar" description="Create the native app">
+        <!-- Windows -->
+        <taskdef name="launch4j"
+                 classname="net.sf.launch4j.ant.Launch4jTask"
+                 classpath="${build.launch4j.dir}/launch4j.jar:${build.launch4j.dir}/lib/xstream.jar"/>
+        <launch4j>
+            <config jar="${build.dir}/${build.jarName}.jar"
+                    outfile="${build.dir}/${build.jarName}.exe"
+                    headerType="console">
+                <jre minVersion="1.6.0"/>
+            </config>
+        </launch4j>
+        
+        <!-- OSX -->
+        <taskdef name="bundleapp"
+                 classname="com.oracle.appbundler.AppBundlerTask"
+                 classpath="${build.appbundler.dir}/appbundler-1.0.jar"/>
+        <bundleapp mainclassname="${build.mainClassName}"
+                   identifier="${build.mainClassName}"
+                   name="${build.osx.appBundleName}"
+                   displayname="${build.osx.friendlyName}"
+                   outputdirectory="${build.dir}"
+                   shortversion="${build.version}">
+            <classpath file="${build.dir}/${build.jarName}.jar"/>
+        </bundleapp>
+        <exec executable="zip" dir="${build.dir}" failonerror="true">
+            <arg value="--quiet"/>
+            <arg value="--recurse-paths"/>
+            <arg value="--symlinks"/>
+            <arg value="${build.osx.appBundleName}.app.zip"/>
+            <arg value="${build.osx.appBundleName}.app"/>
+        </exec>
+    </target>
+</project>
