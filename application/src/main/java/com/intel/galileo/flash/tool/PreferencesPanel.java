@@ -48,8 +48,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
             }
             
         }
-        
-        //updateBoardVersion();
+
         updateFirmwareVersion();
     }
     
@@ -74,7 +73,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
             
         }
         
-        //updateBoardVersion();
         updateFirmwareVersion();
     }
     
@@ -220,12 +218,9 @@ public class PreferencesPanel extends javax.swing.JPanel {
         boardVersion = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         uploadFirmwareButton = new javax.swing.JButton("Upload Firmware");
-        
-        //flasher = new GalileoFirmwareUpdater();
+
         status = new UpdateStatusPanel();
-        
-        //uploadFirmwareButton.setVisible(true);
-        
+
         uploadFirmwareButton.setAction(updateAction);
         
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
