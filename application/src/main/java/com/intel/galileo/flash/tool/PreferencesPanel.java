@@ -10,10 +10,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import java.awt.event.ActionEvent;
+import com.intel.galileo.flash.tool.FirmwareUpdateAction.FirmwareUpdateTask;
+
 
 /**
  * A JPanel to select the preferences for driving the firmware update.
@@ -25,9 +29,35 @@ public class PreferencesPanel extends javax.swing.JPanel {
      * @param galileo flashing functionality
      */
     public PreferencesPanel(GalileoFirmwareUpdater galileo) {
+        
+        this.galileo = galileo;
+        this.updateAction = null;
+        this.galileo.addPropertyChangeListener(changes);
         initComponents();
+        initFirmware();
+        List<CommunicationService> services = galileo.getCommunicationServices();
+        if (! services.isEmpty()) {
+            servicesComboBox.removeAllItems();
+            for (CommunicationService s : services) {
+                servicesComboBox.addItem(s);                        
+            }
+            populateConnections(galileo);
+            String currentConnection = galileo.getCommunicationConnection();
+            if (currentConnection != null) {
+                connectionComboBox.setSelectedItem(currentConnection);
+            }
+            
+        }
+
+        updateFirmwareVersion();
+    }
+    
+    public PreferencesPanel(GalileoFirmwareUpdater galileo, FirmwareUpdateAction action) {
+        
         this.galileo = galileo;
         this.galileo.addPropertyChangeListener(changes);
+        this.updateAction = action;
+        initComponents();
         initFirmware();
         List<CommunicationService> services = galileo.getCommunicationServices();
         if (! services.isEmpty()) {
@@ -43,7 +73,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
             
         }
         
-        //updateBoardVersion();
         updateFirmwareVersion();
     }
     
@@ -188,7 +217,12 @@ public class PreferencesPanel extends javax.swing.JPanel {
         capsuleVersion = new javax.swing.JTextField();
         boardVersion = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
+        uploadFirmwareButton = new javax.swing.JButton("Upload Firmware");
 
+        status = new UpdateStatusPanel();
+
+        uploadFirmwareButton.setAction(updateAction);
+        
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Service:");
         servicesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));	
@@ -273,7 +307,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(boardVersion, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                            .addComponent(capsuleVersion))))
+                            .addComponent(capsuleVersion)
+                            .addComponent(uploadFirmwareButton, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -290,7 +325,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(firmwareComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(firmwareComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))                    
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(capsuleVersion)
@@ -299,6 +334,9 @@ public class PreferencesPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(boardVersion)
                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                		.addComponent(uploadFirmwareButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addContainerGap(128, Short.MAX_VALUE))
         );
 
@@ -337,10 +375,13 @@ public class PreferencesPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JButton uploadFirmwareButton;
     private javax.swing.JComboBox servicesComboBox;
     // End of variables declaration//GEN-END:variables
 
     private final GalileoFirmwareUpdater galileo;
+    private final FirmwareUpdateAction updateAction;
+    private UpdateStatusPanel status;
     
 
 }
