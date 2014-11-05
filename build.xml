@@ -16,7 +16,6 @@
     <property name="build.mainClassName" value="com.intel.galileo.flash.tool.FirmwareUpdateTool"/>
     
     <property name="build.nativeLauncher.dir" location="${basedir}/native-launcher-libs"/>
-    <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j" />
     <property name="build.appbundler.dir" location="${build.nativeLauncher.dir}" />
     <property name="build.osx.appBundleName" value="FirmwareUpdateTool"/>
     <property name="build.osx.friendlyName" value="Firmware Update Tool"/>
@@ -30,6 +29,15 @@
     </presetdef>
 	<condition property="isMac">
 		<os family="mac"/>
+	</condition>
+	<condition property="isWindows">
+		<os family="windows"/>
+	</condition>
+	<condition property="isLinux">
+	    <and>
+	        <os family="unix" />
+	        <not><os family="mac" /></not>
+        </and>
 	</condition>
 
     <!-- ====================================================================== -->
@@ -76,9 +84,26 @@
     <!-- ====================================================================== -->
     <!-- Package the Jar into a native app                                      -->
     <!-- ====================================================================== -->
-    <target name="package" depends="jar,package-windows,package-osx" description="Create the native apps"/>
-    
-    <target name="package-windows" depends="jar" description="Create the Windows native app">
+    <target name="package" depends="jar,package-linux,package-windows,package-osx" description="Create the native apps"/>
+
+    <!-- ====================================================================== -->
+    <!-- Private targets. Do not call manually.                                 -->
+    <!-- ====================================================================== -->
+    <target name="package-linux"   if="isLinux">
+        <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j/linux" />
+        <antcall target="make-exe"/>
+    </target>
+    <target name="package-windows" if="isWindows">
+        <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j/windows" />
+        <antcall target="make-exe"/>
+    </target>
+    <target name="package-osx"     if="isMac">
+        <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j/osx" />
+        <antcall target="make-exe"/>
+        <antcall target="make-app"/>
+    </target>
+
+    <target name="make-exe">
         <taskdef name="launch4j"
                  classname="net.sf.launch4j.ant.Launch4jTask"
                  classpath="${build.launch4j.dir}/launch4j.jar:${build.launch4j.dir}/lib/xstream.jar"/>
@@ -90,8 +115,7 @@
             </config>
         </launch4j>
     </target>
-    
-    <target name="package-osx" depends="jar" if="isMac" description="Create the OSX native app">
+    <target name="make-app">
         <taskdef name="bundleapp"
                  classname="com.oracle.appbundler.AppBundlerTask"
                  classpath="${build.appbundler.dir}/appbundler-1.0.jar"/>
