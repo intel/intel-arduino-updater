@@ -10,13 +10,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.swing.Action;
+
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import java.awt.event.ActionEvent;
-import com.intel.galileo.flash.tool.FirmwareUpdateAction.FirmwareUpdateTask;
+
+
 
 
 /**
@@ -354,8 +354,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
         galileo.setCommunicationConnection(connection);
 
 	//uncomment when lsz issue is resolved
-        //boardVersion.setText("");	
-        //updateBoardVersion();
+        boardVersion.setText("");	
+        updateBoardVersion();
     }//GEN-LAST:event_connectionComboBoxActionPerformed
 
     private void firmwareChoiceChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_firmwareChoiceChanged

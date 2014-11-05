@@ -85,6 +85,14 @@ public abstract class CommunicationService {
     public abstract String sendCommand(String cmd) throws Exception;
     
     /**
+     * Send a command to execute on the board.
+     * @param cmd
+     * @return The output of the command, or null if the command failed.
+     * @throws java.lang.Exception problem sending the command.
+     */
+    public abstract String sendCommandWithTimeout(String cmd, int timeout) throws Exception;
+    
+    /**
      * Send the given file to the board.
      * 
      * @param f  the file to send.
