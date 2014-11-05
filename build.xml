@@ -23,6 +23,16 @@
     <property name="build.zipName" value="${build.name}-${build.version}"/>
 
     <!-- ====================================================================== -->
+    <!-- Defining system properties                                             -->
+    <!-- ====================================================================== -->
+    <presetdef name="javac">
+        <javac includeantruntime="false" />
+    </presetdef>
+	<condition property="isMac">
+		<os family="mac"/>
+	</condition>
+
+    <!-- ====================================================================== -->
     <!-- Defining classpaths                                                    -->
     <!-- ====================================================================== -->
     <path id="build.classpath">
@@ -66,8 +76,9 @@
     <!-- ====================================================================== -->
     <!-- Package the Jar into a native app                                      -->
     <!-- ====================================================================== -->
-    <target name="package" depends="jar" description="Create the native app">
-        <!-- Windows -->
+    <target name="package" depends="jar,package-windows,package-osx" description="Create the native apps"/>
+    
+    <target name="package-windows" depends="jar" description="Create the Windows native app">
         <taskdef name="launch4j"
                  classname="net.sf.launch4j.ant.Launch4jTask"
                  classpath="${build.launch4j.dir}/launch4j.jar:${build.launch4j.dir}/lib/xstream.jar"/>
@@ -78,8 +89,9 @@
                 <jre minVersion="1.6.0"/>
             </config>
         </launch4j>
-        
-        <!-- OSX -->
+    </target>
+    
+    <target name="package-osx" depends="jar" if="isMac" description="Create the OSX native app">
         <taskdef name="bundleapp"
                  classname="com.oracle.appbundler.AppBundlerTask"
                  classpath="${build.appbundler.dir}/appbundler-1.0.jar"/>
