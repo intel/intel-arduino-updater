@@ -173,6 +173,7 @@ public class GalileoFirmwareUpdater {
         GalileoVersion v0;
         GalileoVersion v1;
  
+        currentBoardVersion = null;
         v0 = v1 = currentBoardVersion;
         if (currentBoardVersion == null) {
             if (communicationService == null) {
@@ -188,7 +189,7 @@ public class GalileoFirmwareUpdater {
             }
             
             try {
-                String rawVersion = communicationService.sendCommand(VERSION_COMMAND);
+                String rawVersion = communicationService.sendCommandWithTimeout(VERSION_COMMAND, 250);
                 int endIndex = rawVersion.indexOf(TRANSFER_COMPLETE);
                 if (endIndex > 0) {
                     rawVersion = rawVersion.substring(0, endIndex).trim();

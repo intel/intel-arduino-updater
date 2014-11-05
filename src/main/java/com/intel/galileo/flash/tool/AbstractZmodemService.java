@@ -118,6 +118,25 @@ public abstract class AbstractZmodemService extends CommunicationService {
         cmd.add(remoteCommand);
         return zmodemOperation(cmd, null);
     }
+    
+    /**
+     * Run the native zmodem program which uses stdio for communication and 
+     * pipe its input/output to the given serial device.
+     * 
+     * @param remoteCommand  The remote command to execute
+     * @return  The output of the command.
+     * @throws Exception 
+     */
+    @Override
+    public final String sendCommandWithTimeout(String remoteCommand, int timeout) throws Exception {
+        List<String> cmd = new LinkedList<String>();
+        cmd.add(zmodem.getAbsolutePath());
+        cmd.add("--escape");
+        cmd.add("--verbose");
+        cmd.add("-c");
+        cmd.add(remoteCommand);
+        return zmodemOperationWithTimeout(cmd, null, timeout);
+    }
 
     @Override
     public void sendFile(File f, FileProgress p) throws Exception {
@@ -180,6 +199,38 @@ public abstract class AbstractZmodemService extends CommunicationService {
         }
         return outputReader.getOutput();
     }
+    
+    protected String zmodemOperationWithTimeout(List<String> cmd, FileProgress progress, int timeout) throws Exception {
+    	System.out.println("zmodemOperationWithTimeout");
+        ProcessBuilder pb = createProcessBuilder(cmd);
+        quit = false;
+        Process p = pb.start();
+        
+        RemoteOutputPipe outputReader = new RemoteOutputPipe(p.getErrorStream());
+        Thread serialOut = new Thread(createSerialOutputPipe(p.getInputStream(), progress));
+        serialOut.setName("serial-output");
+        serialOut.start();
+        Thread serialIn = new Thread(createSerialInputPipe(p.getOutputStream()));
+        serialIn.setName("serial-input");
+        serialIn.start();
+        Thread t = new Thread(outputReader);
+        t.setName("output-sucker");
+        t.start();
+        
+        try{
+	        ProcessManager pm = new ProcessManager(p);
+	        Thread thread = new Thread(pm);
+	        thread.start();
+	        pm.waitForOrKill(timeout);
+        }
+        catch(Exception e){
+        	System.out.println(e.getMessage());
+        }
+        System.out.println("Output was: " + outputReader.getOutput());
+
+        return outputReader.getOutput();
+    }
+    
     
     /**
      * Create the ProcessBuilder used to create a child process to run the lsz
