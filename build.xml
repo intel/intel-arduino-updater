@@ -74,7 +74,7 @@
         <launch4j>
             <config jar="${build.dir}/${build.jarName}.jar"
                     outfile="${build.dir}/${build.jarName}.exe"
-                    headerType="console">
+                    headerType="gui">
                 <jre minVersion="1.6.0"/>
             </config>
         </launch4j>
