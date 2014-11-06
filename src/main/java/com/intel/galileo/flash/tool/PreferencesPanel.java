@@ -134,6 +134,10 @@ public class PreferencesPanel extends javax.swing.JPanel {
                             boardVersion.setText(vers.toPresentationString());
                             boardVersion.repaint();
                             boardVersion.revalidate();
+                            uploadFirmwareButton.setEnabled(true);
+                        }
+                        else {
+                        	uploadFirmwareButton.setEnabled(false);
                         }
                     } catch (InterruptedException unused) {
                     } catch (ExecutionException unused) {
@@ -237,6 +241,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         status = new UpdateStatusPanel();
 
         uploadFirmwareButton.setAction(updateAction);
+        uploadFirmwareButton.setEnabled(false);
         
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Service:");
@@ -397,7 +402,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
         String connection = (String)connectionComboBox.getSelectedItem();
         galileo.setCommunicationConnection(connection);
 
-	//uncomment when lsz issue is resolved
         boardVersion.setText("");	
         updateBoardVersion();
     }//GEN-LAST:event_connectionComboBoxActionPerformed
