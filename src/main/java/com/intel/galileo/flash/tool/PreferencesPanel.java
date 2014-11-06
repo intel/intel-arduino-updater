@@ -8,15 +8,30 @@ package com.intel.galileo.flash.tool;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
+import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
-
+import java.awt.event.ActionEvent;
+import com.intel.galileo.flash.tool.FirmwareUpdateAction.FirmwareUpdateTask;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout;
+import javax.swing.JFileChooser;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JTextPane;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import java.awt.Color;
 
 
 /**
@@ -52,6 +67,10 @@ public class PreferencesPanel extends javax.swing.JPanel {
         updateFirmwareVersion();
     }
     
+    /**
+     * @wbp.parser.constructor
+	 * Keep this for WindowBuilder
+     */
     public PreferencesPanel(GalileoFirmwareUpdater galileo, FirmwareUpdateAction action) {
         
         this.galileo = galileo;
@@ -92,12 +111,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
     private void initFirmware() {
         List<FirmwareCapsule> available = galileo.getAvailableFirmware();
-        if (! available.isEmpty()) {
-            firmwareComboBox.removeAllItems();
-            for (FirmwareCapsule fc : available) {
-                firmwareComboBox.addItem(fc);
-            }
-        }
+
     }
     
     private SwingWorker boardVersionUpdater;
@@ -212,10 +226,11 @@ public class PreferencesPanel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         connectionComboBox = new javax.swing.JComboBox();
         jLabel3 = new javax.swing.JLabel();
-        firmwareComboBox = new javax.swing.JComboBox();
         jLabel4 = new javax.swing.JLabel();
         capsuleVersion = new javax.swing.JTextField();
+        capsuleVersion.setBackground(Color.LIGHT_GRAY);
         boardVersion = new javax.swing.JTextField();
+        boardVersion.setBackground(Color.LIGHT_GRAY);
         jLabel5 = new javax.swing.JLabel();
         uploadFirmwareButton = new javax.swing.JButton("Upload Firmware");
 
@@ -260,12 +275,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText("Firmware:");
 
-        firmwareComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));
-        firmwareComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                firmwareChoiceChanged(evt);
-            }
-        });
+
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setLabelFor(capsuleVersion);
@@ -284,61 +294,95 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel5.setText("Current Board Firmware Version:");
+        
+        JButton button = new JButton("...");
+        button.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+
+        		// allow the user to select the cap file in the file system
+        		JFileChooser chooser = new JFileChooser();
+        		FileNameExtensionFilter filter = new FileNameExtensionFilter("Galileo cap file", "cap");
+        		chooser.setFileFilter(filter);
+        		chooser.setCurrentDirectory(new File("."));
+        		int returnVal = chooser.showOpenDialog(getParent());
+        		if(returnVal == JFileChooser.APPROVE_OPTION) {
+        		        textCapFile.setText(chooser.getSelectedFile().getAbsolutePath());
+        	            try {
+							galileo.setLocalCapFile(chooser.getSelectedFile().toURI().toURL());
+						} catch (MalformedURLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+        		}
+        		
+        	}
+        });
+        
+        textCapFile = new JTextField();
+        textCapFile.setColumns(10);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(servicesComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(connectionComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(firmwareComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(boardVersion, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                            .addComponent(capsuleVersion)
-                            .addComponent(uploadFirmwareButton, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        	layout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(layout.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
+        				.addComponent(jLabel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        				.addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+        				.addComponent(jLabel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(layout.createParallelGroup(Alignment.TRAILING, false)
+        				.addComponent(servicesComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        				.addGroup(layout.createSequentialGroup()
+        					.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
+        						.addComponent(jLabel4, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        						.addComponent(jLabel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        					.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        					.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
+        						.addComponent(boardVersion, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+        						.addComponent(capsuleVersion)
+        						.addComponent(uploadFirmwareButton, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        				.addGroup(layout.createSequentialGroup()
+        					.addGroup(layout.createParallelGroup(Alignment.TRAILING)
+        						.addComponent(textCapFile, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
+        						.addComponent(connectionComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addComponent(button)
+        					.addGap(5)))
+        			.addContainerGap(72, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(13, 13, 13)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(servicesComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(connectionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(firmwareComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))                    
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(capsuleVersion)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(boardVersion)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                		.addComponent(uploadFirmwareButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addContainerGap(128, Short.MAX_VALUE))
+        	layout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(layout.createSequentialGroup()
+        			.addGap(13)
+        			.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(jLabel1)
+        				.addComponent(servicesComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(layout.createParallelGroup(Alignment.TRAILING)
+        				.addGroup(layout.createSequentialGroup()
+        					.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+        						.addComponent(jLabel2)
+        						.addComponent(connectionComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addComponent(jLabel3)
+        					.addGap(6))
+        				.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+        					.addComponent(button)
+        					.addComponent(textCapFile, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+        			.addPreferredGap(ComponentPlacement.UNRELATED)
+        			.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
+        				.addComponent(capsuleVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(jLabel4, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
+        				.addComponent(boardVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(jLabel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(uploadFirmwareButton, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+        			.addContainerGap(129, Short.MAX_VALUE))
         );
+        this.setLayout(layout);
 
         connectionComboBox.getAccessibleContext().setAccessibleName("");
     }// </editor-fold>//GEN-END:initComponents
@@ -358,18 +402,13 @@ public class PreferencesPanel extends javax.swing.JPanel {
         updateBoardVersion();
     }//GEN-LAST:event_connectionComboBoxActionPerformed
 
-    private void firmwareChoiceChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_firmwareChoiceChanged
-        FirmwareCapsule cap = (FirmwareCapsule) firmwareComboBox.getSelectedItem();
-        galileo.getLogger().info("Selected firmware: "+cap);
-        galileo.setUpdate(cap);
-    }//GEN-LAST:event_firmwareChoiceChanged
+
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField boardVersion;
     private javax.swing.JTextField capsuleVersion;
     private javax.swing.JComboBox connectionComboBox;
-    private javax.swing.JComboBox firmwareComboBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -382,6 +421,5 @@ public class PreferencesPanel extends javax.swing.JPanel {
     private final GalileoFirmwareUpdater galileo;
     private final FirmwareUpdateAction updateAction;
     private UpdateStatusPanel status;
-    
-
+    private JTextField textCapFile;
 }
