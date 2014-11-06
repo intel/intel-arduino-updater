@@ -5,9 +5,12 @@
  */
 package com.intel.galileo.flash.tool;
 
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -36,6 +39,35 @@ public class FirmwareUpdateAction extends AbstractAction {
 
         JComponent parent = (JComponent) e.getSource();
 
+		
+        // first of all let's check if the file really exist
+        // since the user has option to type the name
+        try {
+			new File(galileo.getLocalCapFile().getPath()).exists();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(parent,
+		            "Invalid cap file, make sure the file exists or you have valid permissions.",
+		            DIALOG_TITLE,
+		            ERROR_MESSAGE);
+		    return;
+		} 
+        
+		//get the current file typed if any thus we will fix the annoying error
+        // "Preferences not yet properly set" always shown before
+        galileo.getCurrentBoardVersion();
+	    
+        
+        // ToDo - Remove the cache mechanism
+	    String home = System.getProperty("user.home");
+	    File f = new File(home, ".galileo");
+	    f.mkdir();
+        FirmwareCapsule cap = new FirmwareCapsule(galileo.getLocalCapFile(), 
+					                                  f);
+        // updating the cap file instance.
+		galileo.setUpdate(cap);
+         
         // the command should not have been enabled until this returns true.
         if (!galileo.isReadyForUpdate()) {
             JOptionPane.showMessageDialog(parent,
@@ -43,7 +75,7 @@ public class FirmwareUpdateAction extends AbstractAction {
                     DIALOG_TITLE,
                     ERROR_MESSAGE);
 			//temporary skip until lsz issue is fixed
-            //return;
+            return;
         }
 
         windowReturn = JOptionPane.showConfirmDialog(parent,
@@ -55,7 +87,7 @@ public class FirmwareUpdateAction extends AbstractAction {
             return;
         }
 
-        FirmwareCapsule cap = galileo.getUpdate();
+        cap = galileo.getUpdate();
         GalileoVersion ready_version_id = cap.getVersion();
 
         GalileoVersion target_version_id = galileo.getCurrentBoardVersion();
