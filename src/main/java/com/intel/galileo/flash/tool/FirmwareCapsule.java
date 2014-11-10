@@ -111,17 +111,26 @@ public class FirmwareCapsule {
 
         StringBuilder fileData = new StringBuilder();
         BufferedReader reader = new BufferedReader(new FileReader(f));
-        char[] buf = new char[1024];
-        int numRead;
-        while ((numRead = reader.read(buf)) != -1) {
-            String readData = String.valueOf(buf, 0, numRead);
-            fileData.append(readData);
+        try{
+	        char[] buf = new char[1024];
+	        int numRead;
+	        while ((numRead = reader.read(buf)) != -1) {
+	            String readData = String.valueOf(buf, 0, numRead);
+	            fileData.append(readData);
+	        }
+        } catch (Exception e) {
+        	e.printStackTrace();
+        } finally {
+        	try {
+        		reader.close();
+        	} catch(Exception e) {
+        		e.printStackTrace();
+        	}
         }
-
         int index_FL_IMG_VER = fileData.indexOf(FL_IMG_VER);
         int index_FL_IMG_VAL = FL_IMG_VAL.length()
                 + fileData.indexOf(FL_IMG_VAL, index_FL_IMG_VER);
-        int index_FL_IMG_EOL = fileData.indexOf(FL_IMG_EOL, index_FL_IMG_VAL);
+        int index_FL_IMG_EOL = fileData.indexOf(FL_IMG_EOL, index_FL_IMG_VAL); 
         String v = fileData.substring(index_FL_IMG_VAL, index_FL_IMG_EOL);
 
         return v;
