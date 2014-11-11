@@ -33,7 +33,7 @@ public class GalileoFirmwareUpdater {
     // TODO - do something other than hardwared default
     static final String DEFAULT_CAPSULE = "sysimage-galileo-1.0.3.cap";
     
-    private URL localCapFile; // this is used when the cap file is selected from fs
+    private URL localCapFile = null; // this is used when the cap file is selected from fs
     
 	public GalileoFirmwareUpdater() {
         this(null,null);

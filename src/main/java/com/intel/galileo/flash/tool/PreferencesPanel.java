@@ -10,8 +10,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Comparator;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
+import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
@@ -19,15 +24,18 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.event.ActionEvent;
+import com.intel.galileo.flash.tool.FirmwareUpdateAction.FirmwareUpdateTask;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout;
 import javax.swing.JFileChooser;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JTextPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import java.awt.Color;
-
+import java.io.FilenameFilter;
 
 /**
  * A JPanel to select the preferences for driving the firmware update.
@@ -60,7 +68,69 @@ public class PreferencesPanel extends javax.swing.JPanel {
         }
 
         updateFirmwareVersion();
+
     }
+    
+    /*
+     * Checks the current directory for possible *.cap file
+     * if there is more than one, will take the latest
+     */
+    public URL isThereAnyCap()
+    {
+
+    	try {
+
+    		SortedSet<File> modificationOrder = new TreeSet<File>(new Comparator<File>() {
+    			public int compare(File a, File b) {
+    				return (int) (a.lastModified() - b.lastModified());
+    			}
+    		});
+
+    		File currentDir =  new File(System.getProperty("user.dir"));
+
+    		// searching only "*.cap" files
+    		FilenameFilter filter = new FilenameFilter () {
+    			public boolean accept(File dir, String name) {
+    				return name.toLowerCase().endsWith(".cap");
+    			}
+    		};
+
+    		for (File file :currentDir.listFiles(filter)) {
+    			modificationOrder.add(file);
+    		}
+
+    		File last = modificationOrder.last();
+    		return last.toURI().toURL();
+    	} catch (Exception e) {
+    		return null;
+    	}
+    }
+    
+    /*
+     *  Update Screen based in url choosen 
+     */
+    private void updateCanvasBasedInURL(URL _url) {
+    	
+    	
+    	if (_url == null) return;
+    	    	
+		galileo.setLocalCapFile(_url);
+		
+        // ToDo - Remove the cache mechanism
+	    String home = System.getProperty("user.home");
+	    File f = new File(home, ".galileo");
+	    f.mkdir();
+        FirmwareCapsule cap = new FirmwareCapsule(galileo.getLocalCapFile(), 
+					                                  f);
+        // updating the cap file instance.
+		galileo.setUpdate(cap);
+        textCapFile.setText(_url.getPath());
+
+        updateCanvasBasedInURL(isThereAnyCap());
+
+		updateBoardVersion();	
+    	
+    }   
     
     /**
      * @wbp.parser.constructor
@@ -86,7 +156,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
             }
             
         }
-        
+        updateCanvasBasedInURL(isThereAnyCap());
+
         updateFirmwareVersion();
     }
     
@@ -232,11 +303,11 @@ public class PreferencesPanel extends javax.swing.JPanel {
         boardVersion.setBackground(Color.LIGHT_GRAY);
         jLabel5 = new javax.swing.JLabel();
         uploadFirmwareButton = new javax.swing.JButton("Upload Firmware");
+        uploadFirmwareButton.setEnabled(false);
 
         status = new UpdateStatusPanel();
 
         uploadFirmwareButton.setAction(updateAction);
-        uploadFirmwareButton.setEnabled(false);
         
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Service:");
@@ -308,7 +379,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         		if(returnVal == JFileChooser.APPROVE_OPTION) {
         		        textCapFile.setText(chooser.getSelectedFile().getAbsolutePath());
         	            try {
-							galileo.setLocalCapFile(chooser.getSelectedFile().toURI().toURL());
+							updateCanvasBasedInURL(chooser.getSelectedFile().toURI().toURL());
 						} catch (MalformedURLException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
