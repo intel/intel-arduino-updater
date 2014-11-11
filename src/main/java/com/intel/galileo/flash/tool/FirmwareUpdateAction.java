@@ -34,7 +34,7 @@ public class FirmwareUpdateAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
 
         int windowReturn;
-
+        FirmwareCapsule cap;
         JComponent parent = (JComponent) e.getSource();
 
 		
@@ -57,15 +57,17 @@ public class FirmwareUpdateAction extends AbstractAction {
         galileo.getCurrentBoardVersion();
 	    
         
-        // ToDo - Remove the cache mechanism
-	    String home = System.getProperty("user.home");
-	    File f = new File(home, ".galileo");
-	    f.mkdir();
-        FirmwareCapsule cap = new FirmwareCapsule(galileo.getLocalCapFile(), 
+        if (galileo.getLocalCapFile() == null)
+        {
+  	        String home = System.getProperty("user.home");
+	        File f = new File(home, ".galileo");
+	        f.mkdir();
+            cap = new FirmwareCapsule(galileo.getLocalCapFile(), 
 					                                  f);
-        // updating the cap file instance.
-		galileo.setUpdate(cap);
-         
+            // updating the cap file instance.
+   	        galileo.setUpdate(cap);
+        } 
+        
         // the command should not have been enabled until this returns true.
         if (!galileo.isReadyForUpdate()) {
             JOptionPane.showMessageDialog(parent,
