@@ -201,9 +201,13 @@ public class PreferencesPanel extends javax.swing.JPanel {
                             boardVersion.repaint();
                             boardVersion.revalidate();
                             uploadFirmwareButton.setEnabled(true);
+                            msgJlabel.setVisible(false);
                         }
                         else {
                         	uploadFirmwareButton.setEnabled(false);
+                        	String port = connectionComboBox.getSelectedItem().toString();
+                        	msgJlabel.setText("<html><font color='red'>Galileo not found on " + port + "! Please make sure that you select the correct serial port.</font></html>");
+                        	msgJlabel.setVisible(true);
                         }
                     } catch (InterruptedException unused) {
                     } catch (ExecutionException unused) {
@@ -304,6 +308,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
         jLabel5 = new javax.swing.JLabel();
         uploadFirmwareButton = new javax.swing.JButton("Upload Firmware");
         uploadFirmwareButton.setEnabled(false);
+        msgJlabel = new javax.swing.JLabel();
+        msgJlabel.setVisible(false);
 
         status = new UpdateStatusPanel();
 
@@ -395,6 +401,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         layout.setHorizontalGroup(
         	layout.createParallelGroup(Alignment.LEADING)
+        		.addComponent(msgJlabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         		.addGroup(layout.createSequentialGroup()
         			.addContainerGap()
         			.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
@@ -420,7 +427,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         					.addPreferredGap(ComponentPlacement.RELATED)
         					.addComponent(button)
         					.addGap(5)))
-        			.addContainerGap(72, Short.MAX_VALUE))
+        		.addContainerGap(72, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
         	layout.createParallelGroup(Alignment.LEADING)
@@ -451,6 +458,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
         				.addComponent(jLabel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addComponent(uploadFirmwareButton, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(msgJlabel, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
         			.addContainerGap(129, Short.MAX_VALUE))
         );
         this.setLayout(layout);
@@ -484,6 +493,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel msgJlabel;
     private javax.swing.JButton uploadFirmwareButton;
     private javax.swing.JComboBox servicesComboBox;
     // End of variables declaration//GEN-END:variables
