@@ -126,8 +126,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
 		galileo.setUpdate(cap);
         textCapFile.setText(_url.getPath());
 
-        updateCanvasBasedInURL(isThereAnyCap());
-
 		updateBoardVersion();	
     	
     }   
