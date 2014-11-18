@@ -408,7 +408,6 @@ public class GalileoFirmwareUpdater {
                 if (communicationService.openConnection(communicationConnection)) {
                     // we can talk to the board
                     GalileoVersion v = getCurrentBoardVersion();
-                    communicationService.closeConnection();
                     boolean success = ((v != null) && 
                             (v.compareTo(update.getVersion()) == 0));
                     if (success) {
