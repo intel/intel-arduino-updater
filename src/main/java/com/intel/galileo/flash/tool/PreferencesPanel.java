@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import java.awt.Color;
 import java.io.FilenameFilter;
+import javax.swing.SwingConstants;
 
 /**
  * A JPanel to select the preferences for driving the firmware update.
@@ -204,7 +205,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
                         else {
                         	uploadFirmwareButton.setEnabled(false);
                         	String port = connectionComboBox.getSelectedItem().toString();
-                        	msgJlabel.setText("<html><font color='red'>Galileo not found on " + port + "! Please make sure that you select the correct serial port.</font></html>");
+                        	msgJlabel.setText("<html><font color='red'>Galileo not found on " + port + "! Please make sure that you select the correct serial port and you have permission to access.</font></html>");
                         	msgJlabel.setVisible(true);
                         }
                     } catch (InterruptedException unused) {
@@ -399,7 +400,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         layout.setHorizontalGroup(
         	layout.createParallelGroup(Alignment.LEADING)
-        		.addComponent(msgJlabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         		.addGroup(layout.createSequentialGroup()
         			.addContainerGap()
         			.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
@@ -425,7 +425,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
         					.addPreferredGap(ComponentPlacement.RELATED)
         					.addComponent(button)
         					.addGap(5)))
-        		.addContainerGap(72, Short.MAX_VALUE))
+        			.addContainerGap(72, Short.MAX_VALUE))
+        		.addComponent(msgJlabel, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
         	layout.createParallelGroup(Alignment.LEADING)
@@ -457,8 +458,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addComponent(uploadFirmwareButton, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
         			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(msgJlabel, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-        			.addContainerGap(129, Short.MAX_VALUE))
+        			.addComponent(msgJlabel, GroupLayout.PREFERRED_SIZE, 61, GroupLayout.PREFERRED_SIZE)
+        			.addContainerGap(62, Short.MAX_VALUE))
         );
         this.setLayout(layout);
 
