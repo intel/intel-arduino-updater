@@ -474,6 +474,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
     private void connectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionComboBoxActionPerformed
 
         String connection = (String)connectionComboBox.getSelectedItem();
+        
+        galileo.invalidateBoardVersion();
         galileo.setCommunicationConnection(connection);
 
         boardVersion.setText("");	

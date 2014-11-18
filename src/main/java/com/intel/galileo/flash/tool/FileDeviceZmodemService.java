@@ -123,6 +123,9 @@ public abstract class FileDeviceZmodemService extends AbstractZmodemService {
             } catch (IOException e) {
                 String reason = e.getMessage();
                 getLogger().severe(reason);
+            } catch (Exception ex) {
+            	String reason = ex.getMessage();
+                getLogger().severe(reason);
             } finally {
                 try {
                     in.close();

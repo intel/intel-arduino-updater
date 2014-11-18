@@ -54,7 +54,7 @@ public class FirmwareUpdateAction extends AbstractAction {
         
 		//get the current file typed if any thus we will fix the annoying error
         // "Preferences not yet properly set" always shown before
-        galileo.getCurrentBoardVersion();
+        GalileoVersion target_version_id = galileo.getCurrentBoardVersion();
 	    
         
         if (galileo.getLocalCapFile() == null)
@@ -90,7 +90,6 @@ public class FirmwareUpdateAction extends AbstractAction {
         cap = galileo.getUpdate();
         GalileoVersion ready_version_id = cap.getVersion();
 
-        GalileoVersion target_version_id = galileo.getCurrentBoardVersion();
         String windowDescription = "Target firmware is version '"
                 + target_version_id.toPresentationString() + "' now.\n\nDo you wish to ";
 

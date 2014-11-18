@@ -175,7 +175,7 @@ public class GalileoFirmwareUpdater {
         GalileoVersion v0;
         GalileoVersion v1;
  
-        currentBoardVersion = null;
+
         v0 = v1 = currentBoardVersion;
         if (currentBoardVersion == null) {
             if (communicationService == null) {
@@ -210,7 +210,7 @@ public class GalileoFirmwareUpdater {
         return currentBoardVersion;
     }
     
-    protected synchronized void invalidateBoardVersion() {
+    public synchronized void invalidateBoardVersion() {
         GalileoVersion v0 = currentBoardVersion;
         currentBoardVersion = null;
         props.firePropertyChange("currentBoardVersion", v0, null);
