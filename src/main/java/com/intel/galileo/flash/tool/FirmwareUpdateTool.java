@@ -51,6 +51,9 @@ public class FirmwareUpdateTool extends JFrame {
         flasher = new GalileoFirmwareUpdater();
         status = new UpdateStatusPanel();
         preferences = new PreferencesPanel(flasher, (new FirmwareUpdateAction(flasher,status)));
+        
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         setTitle(title);
         setJMenuBar(createMenubar());
         getContentPane().setLayout(new BorderLayout());
