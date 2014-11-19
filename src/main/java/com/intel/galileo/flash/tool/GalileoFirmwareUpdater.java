@@ -190,11 +190,14 @@ public class GalileoFirmwareUpdater {
             }
             
             try {
-                String rawVersion = communicationService.sendCommandWithTimeout(VERSION_COMMAND, 250);
-                int endIndex = rawVersion.indexOf(TRANSFER_COMPLETE);
-                if (endIndex > 0) {
-                    rawVersion = rawVersion.substring(0, endIndex).trim();
-                    currentBoardVersion = GalileoVersion.ofTargetString(rawVersion);
+            	for(int i =0 ;(currentBoardVersion==null && (i < 5));i++){
+	                String rawVersion = communicationService.sendCommandWithTimeout(VERSION_COMMAND, 250);
+	                int endIndex = rawVersion.indexOf(TRANSFER_COMPLETE);
+	                if (endIndex > 0) {
+	                    rawVersion = rawVersion.substring(0, endIndex).trim();
+	                    currentBoardVersion = GalileoVersion.ofTargetString(rawVersion);
+	                    break;
+	                }
                 }
             } catch (Exception ex) {
                 getLogger().log(Level.SEVERE, null, ex);
