@@ -472,14 +472,26 @@ public class PreferencesPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_capsuleVersionActionPerformed
 
     private void connectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionComboBoxActionPerformed
-
-        String connection = (String)connectionComboBox.getSelectedItem();
+    	try {
+    		String connection = (String)connectionComboBox.getSelectedItem();
+	    	if(connection != lastPort)
+	    	{
+	    		lastPort = connection;
+	    		galileo.invalidateBoardVersion();
+	    	}
+	    	if(!galileo.getQueryState())
+            {	
+            	galileo.setQueryState(true);
+            	boardVersion.setText("");
+            	connection = (String)connectionComboBox.getSelectedItem();
+            	galileo.setCommunicationConnection(connection);
+            	updateBoardVersion();
+            	galileo.setQueryState(false);
+            }
         
-        galileo.invalidateBoardVersion();
-        galileo.setCommunicationConnection(connection);
-
-        boardVersion.setText("");	
-        updateBoardVersion();
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}
     }//GEN-LAST:event_connectionComboBoxActionPerformed
 
 
@@ -503,4 +515,5 @@ public class PreferencesPanel extends javax.swing.JPanel {
     private final FirmwareUpdateAction updateAction;
     private UpdateStatusPanel status;
     private JTextField textCapFile;
+    private String lastPort ="";
 }
