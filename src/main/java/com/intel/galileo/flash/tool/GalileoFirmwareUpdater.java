@@ -407,6 +407,7 @@ public class GalileoFirmwareUpdater {
                 log.info("poll ...  " + ++i);
                 if (communicationService.openConnection(communicationConnection)) {
                     // we can talk to the board
+                    Thread.sleep(5000);	//sleep one last time to allow clloader a chance to start
                     GalileoVersion v = getCurrentBoardVersion();
                     boolean success = ((v != null) && 
                             (v.compareTo(update.getVersion()) == 0));
