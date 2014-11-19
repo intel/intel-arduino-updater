@@ -477,4 +477,15 @@ public class GalileoFirmwareUpdater {
         public void updateProgress(int percent);
         
     }
+    
+    public boolean getQueryState()
+    {
+    	return boardVersionQueryRunning;
+    }
+    
+    public void setQueryState(boolean state)
+    {
+    	boardVersionQueryRunning = state;
+    }
+    private boolean boardVersionQueryRunning = false;
 }
