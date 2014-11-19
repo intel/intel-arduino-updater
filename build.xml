@@ -75,6 +75,7 @@
         <jar basedir="${build.classes.dir}"
              jarfile="${build.dir}/${build.jarName}.jar" 
              compress="true">
+             <zipgroupfileset dir="${build.resources.dir}/jssc" includes="jssc.jar"/>
              <manifest>
                 <attribute name="Main-Class" value="${build.mainClassName}"/>
             </manifest>
