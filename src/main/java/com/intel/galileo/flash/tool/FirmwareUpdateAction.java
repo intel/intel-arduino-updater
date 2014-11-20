@@ -41,7 +41,12 @@ public class FirmwareUpdateAction extends AbstractAction {
         // first of all let's check if the file really exist
         // since the user has option to type the name
         try {
-			new File(galileo.getLocalCapFile().getPath()).exists();
+        	
+        	// checking if it is a local cap file or from resource
+        	if (galileo.getLocalCapFile() != null) {
+    			new File(galileo.getLocalCapFile().getPath()).exists();        		
+        	}
+        		
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -57,16 +62,7 @@ public class FirmwareUpdateAction extends AbstractAction {
         GalileoVersion target_version_id = galileo.getCurrentBoardVersion();
 	    
         
-        if (galileo.getLocalCapFile() == null)
-        {
-  	        String home = System.getProperty("user.home");
-	        File f = new File(home, ".galileo");
-	        f.mkdir();
-            cap = new FirmwareCapsule(galileo.getLocalCapFile(), 
-					                                  f);
-            // updating the cap file instance.
-   	        galileo.setUpdate(cap);
-        } 
+
         
         // the command should not have been enabled until this returns true.
         if (!galileo.isReadyForUpdate()) {

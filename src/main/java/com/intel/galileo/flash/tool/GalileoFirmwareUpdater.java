@@ -24,14 +24,13 @@ import java.util.logging.Logger;
 public class GalileoFirmwareUpdater {
 
     static final String[] CAPSULE_RESOURCES = {
-        "sysimage-galileo-1.0.2.cap",
-        "sysimage-galileo-1.0.3.cap"
+        "sysimage-galileo-1.0.4.cap"
     };
     
     static final String CAPSULE_RESOURCE_PATH = "/capsules/";
     
     // TODO - do something other than hardwared default
-    static final String DEFAULT_CAPSULE = "sysimage-galileo-1.0.3.cap";
+    static final String DEFAULT_CAPSULE = CAPSULE_RESOURCES[0];
     
     private URL localCapFile = null; // this is used when the cap file is selected from fs
     
@@ -252,6 +251,7 @@ public class GalileoFirmwareUpdater {
         
         GalileoVersion v = (update != null) ? update.getVersion() : null;
         setUpdateVersion(v);
+        localCapFile = null;
     }
     
     /**
