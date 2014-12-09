@@ -68,7 +68,6 @@ public class FirmwareCapsule {
         return cache;
     }
     
-    private static final String CAP_SUFFIX = ".cap";
     
     private synchronized void checkCacheAndLoadIfNeeded() {
         if (! cacheLoaded) {

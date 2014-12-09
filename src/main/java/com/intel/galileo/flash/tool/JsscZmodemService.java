@@ -102,7 +102,6 @@ public abstract class JsscZmodemService extends AbstractZmodemService {
 
         @Override
         public void run() {
-            byte[] buff = new byte[1024];
             try {
                 for (byte[] bytes = port.readBytes(); !quit; bytes = port.readBytes()) {
                     if (bytes != null) {

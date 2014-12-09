@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
-import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
@@ -24,19 +23,13 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.event.ActionEvent;
-import com.intel.galileo.flash.tool.FirmwareUpdateAction.FirmwareUpdateTask;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout;
 import javax.swing.JFileChooser;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JTextPane;
-import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
 import java.awt.Color;
 import java.io.FilenameFilter;
-import javax.swing.SwingConstants;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 
@@ -310,8 +303,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
         msgJlabel = new javax.swing.JLabel();
         msgJlabel.setVisible(false);
 
-        status = new UpdateStatusPanel();
-
         uploadFirmwareButton.setAction(updateAction);
         
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -537,7 +528,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
     private final GalileoFirmwareUpdater galileo;
     private final FirmwareUpdateAction updateAction;
-    private UpdateStatusPanel status;
     private String lastPort ="";
     private final ButtonGroup buttonGroup = new ButtonGroup();
 }
