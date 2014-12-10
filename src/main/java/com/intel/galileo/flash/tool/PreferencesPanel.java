@@ -198,7 +198,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
                         }
                         else {
                         	String port = connectionComboBox.getSelectedItem().toString();
-                        	msgJlabel.setText("<html><font color='red'>Galileo not found on " + port + "! Please make sure that you select the correct serial port and you have permission to access.</font></html>");
+                        	msgJlabel.setText("<html><font color='red'>Galileo not found on " + port + "! Please make sure that you select the correct serial port and that you have permission to access.</font></html>");
                         	msgJlabel.setVisible(true);
                         }
                     } catch (InterruptedException unused) {
@@ -362,11 +362,11 @@ public class PreferencesPanel extends javax.swing.JPanel {
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel5.setText("Current Board Firmware Version:");
         
-        final JRadioButton resourceNameRatio = new JRadioButton("Browser for file");
+        final JRadioButton resourceNameRatio = new JRadioButton("Browse for .cap file");
         resourceNameRatio.setSelected(true);
         buttonGroup.add(resourceNameRatio);
         
-        JRadioButton browserRatio = new JRadioButton("Browser for file");
+        JRadioButton browserRatio = new JRadioButton("Browse for .cap file");
         browserRatio.setSelected(true);
         buttonGroup.add(browserRatio);
         
