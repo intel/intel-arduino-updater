@@ -26,9 +26,12 @@ import java.awt.event.ActionEvent;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.io.FilenameFilter;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
@@ -64,7 +67,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
         }
 
         updateFirmwareVersion();
-
     }
     
     /*
@@ -214,6 +216,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
     
     private SwingWorker capsuleVersionUpdater;
     private void updateFirmwareVersion() {
+    	
         capsuleVersion.setText("Unknown");
         if (galileo.getUpdate() != null) {
             capsuleVersionUpdater = new SwingWorker<GalileoVersion,Void>() {
@@ -229,9 +232,19 @@ public class PreferencesPanel extends javax.swing.JPanel {
                     try {
                         GalileoVersion vers = get();
                         if (vers != null) {
+                        	
                             capsuleVersion.setText(vers.toPresentationString());
+                            FirmwareUpdateTool.capVersion = vers.toPresentationString();
+
+                            // getting the same of the resource and setting the ratio text
+                            resourceNameRatio.setText(vers.toPresentationString());
+                            
                             capsuleVersion.repaint();
                             capsuleVersion.revalidate();
+            
+                            frame.revalidate();
+                            frame.repaint();
+                            
                         }
                     } catch (InterruptedException unused) {
                     } catch (ExecutionException unused) {
@@ -239,8 +252,12 @@ public class PreferencesPanel extends javax.swing.JPanel {
                 }
                 
             };
-            capsuleVersionUpdater.execute();
-        }
+           
+           capsuleVersionUpdater.execute();
+           revalidate();
+           repaint();
+           
+       }
     }
     
     private PropertyChangeListener changes = new PropertyChangeListener() {
@@ -278,6 +295,16 @@ public class PreferencesPanel extends javax.swing.JPanel {
         
     };
     
+    /* Necessary to fool the SWT and repaint the main frame */
+    public void setFrame(JFrame f) {
+    	if (f==null) {
+    		throw new InternalError("NULL frame set ");
+    		
+    	} else {
+        	frame = f;
+    	}
+     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -302,7 +329,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         uploadFirmwareButton.setEnabled(false);
         msgJlabel = new javax.swing.JLabel();
         msgJlabel.setVisible(false);
-
+        
         uploadFirmwareButton.setAction(updateAction);
         
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -362,17 +389,14 @@ public class PreferencesPanel extends javax.swing.JPanel {
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel5.setText("Current Board Firmware Version:");
         
-        final JRadioButton resourceNameRatio = new JRadioButton("Browse for .cap file");
+        resourceNameRatio = new JRadioButton("Browse for .cap file");
         resourceNameRatio.setSelected(true);
         buttonGroup.add(resourceNameRatio);
         
         JRadioButton browserRatio = new JRadioButton("Browse for .cap file");
         browserRatio.setSelected(true);
         buttonGroup.add(browserRatio);
-        
-        // getting the same of the resource and setting the ratio text
-        resourceNameRatio.setText(galileo.getAvailableFirmware().get(0).toString());
-        
+         
         browserRatio.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
 
@@ -508,13 +532,11 @@ public class PreferencesPanel extends javax.swing.JPanel {
 			e.printStackTrace();
 		}
     }//GEN-LAST:event_connectionComboBoxActionPerformed
-
-
-
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField boardVersion;
     private javax.swing.JTextField capsuleVersion;
+    private JRadioButton resourceNameRatio;
     private javax.swing.JComboBox connectionComboBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -529,5 +551,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
     private final GalileoFirmwareUpdater galileo;
     private final FirmwareUpdateAction updateAction;
     private String lastPort ="";
-    private final ButtonGroup buttonGroup = new ButtonGroup();
+    private final ButtonGroup buttonGroup = new ButtonGroup();  
+    
+    private JFrame frame;
 }

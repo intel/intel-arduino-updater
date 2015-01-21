@@ -1,25 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="firmware-update-tool" default="package" basedir=".">
+<project name="firmware-updater" default="package" basedir=".">
 
     <!-- ====================================================================== -->
     <!-- Build environment properties                                           -->
     <!-- ====================================================================== -->
-    <property name="build.name" value="${ant.project.name}"/>
-    <property name="build.version" value="1.0.0"/>
+    <property name="build.name" value="firmware-updater"/>
+    <property name="build.friendlyName" value="Firmware Updater"/>
+    <property name="build.shell.version" value="1.0.0"/>
+    <property name="build.license" value="GNU General Public License"/>
 
     <property name="build.dir" location="${basedir}/output"/>
     <property name="build.src.dir" location="${basedir}/src/main/java"/>
     <property name="build.resources.dir" location="${basedir}/src/main/resources"/>
+
+    <!-- Get the firmware file name -->
+    <pathconvert property="capsules.dir.list" pathsep="${line.separator}">
+        <fileset dir="${build.resources.dir}/capsules">
+            <include name="*.cap"/>
+        </fileset>
+    </pathconvert>
+    <loadresource property="capsule.file.path">
+        <string value="${capsules.dir.list}"/>
+        <filterchain>
+            <headfilter lines="1"/>
+        </filterchain>
+    </loadresource>
+    <basename property="build.firmware.version" file="${capsule.file.path}" suffix=".cap"/>
     
     <property name="build.classes.dir" location="${build.dir}/classes"/>
-    <property name="build.jarName" value="${build.name}-${build.version}"/>
+    <property name="build.jarName" value="${build.name}-${build.firmware.version}"/>
     <property name="build.mainClassName" value="com.intel.galileo.flash.tool.FirmwareUpdateTool"/>
     
     <property name="build.nativeLauncher.dir" location="${basedir}/native-launcher-libs"/>
     <property name="build.appbundler.dir" location="${build.nativeLauncher.dir}" />
-    <property name="build.osx.appBundleName" value="FirmwareUpdateTool"/>
-    <property name="build.osx.friendlyName" value="Firmware Update Tool"/>
-    <property name="build.zipName" value="${build.name}-${build.version}"/>
+    <property name="build.about.version" value="Shell[${build.shell.version}] Firmware[${build.firmware.version}]"/>
+    <property name="build.zipName" value="${build.name}-${build.firmware.version}"/>
 
     <!-- ====================================================================== -->
     <!-- Defining system properties                                             -->
@@ -55,9 +70,28 @@
     </target>
 
     <!-- ====================================================================== -->
+    <!-- Sanity checks                                                          -->
+    <!-- ====================================================================== -->
+    <target name="sanity-checks" description="Sanity checks">
+        <fail unless="capsule.file.path">
+        Capsule file is missing!
+        Please add x.x.x.cap into ${build.resources.dir}/capsules/
+        </fail>
+    </target>
+
+    <!-- ====================================================================== -->
+    <!-- Write a text file containint version numbers                           -->
+    <!-- ====================================================================== -->
+    <target name="write-version-file" depends="sanity-checks" description="Sanity checks">
+        <property environment="env"/>
+        <echo file="${build.resources.dir}/versions.properties">APP_VER=${build.shell.version}${line.separator}</echo>
+    </target>
+
+    <!-- ====================================================================== -->
     <!-- Compilation target                                                     -->
     <!-- ====================================================================== -->
-    <target name="compile" description="Compile the code">
+    <target name="compile" depends="sanity-checks,write-version-file" description="Compile the code">
+        <move file="${capsule.file.path}" tofile="${build.resources.dir}/capsules/firmware.cap"/>
         <mkdir dir="${build.classes.dir}"/>
         <javac target="1.6" source="1.6"
                srcdir="${build.src.dir}" 
@@ -126,19 +160,27 @@
                  classpath="${build.appbundler.dir}/appbundler-1.0.jar"/>
         <bundleapp mainclassname="${build.mainClassName}"
                    identifier="${build.mainClassName}"
-                   name="${build.osx.appBundleName}"
-                   displayname="${build.osx.friendlyName}"
+                   name="${build.friendlyName}"
+                   displayname="${build.friendlyName}"
                    outputdirectory="${build.dir}"
-                   shortversion="${build.version}"
+                   shortversion="${build.about.version}"
                    icon="${basedir}/src/main/resources/icons/application.icns">
             <classpath file="${build.dir}/${build.jarName}.jar"/>
         </bundleapp>
+        <!-- Unless we remove CFBundleVersion property, version displays as
+                 Shell[1.0.0] Firmware[1.0.x] (1)
+             Removing this property removes " (1)" at the end. -->
+        <exec executable="/usr/libexec/PlistBuddy">
+            <arg value="-c"/>
+            <arg value="Delete CFBundleVersion #${env.BUILD_NUMBER}"/>
+            <arg value="${build.dir}/${build.friendlyName}.app/Contents/Info.plist"/>
+        </exec>
         <exec executable="zip" dir="${build.dir}" failonerror="true">
             <arg value="--quiet"/>
             <arg value="--recurse-paths"/>
             <arg value="--symlinks"/>
-            <arg value="${build.osx.appBundleName}.app.zip"/>
-            <arg value="${build.osx.appBundleName}.app"/>
+            <arg value="${build.friendlyName}.app.zip"/>
+            <arg value="${build.friendlyName}.app"/>
         </exec>
     </target>
     <target name="make-script">
