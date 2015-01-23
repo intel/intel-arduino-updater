@@ -3,18 +3,13 @@ package com.intel.galileo.flash.tool;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
-
-
-//import processing.app.Base;
-//import processing.app.Editor;
-//import processing.app.Preferences;
-//import processing.app.tools.Tool;
 
 /**
  * User interface for updating firmware on Intel Galileo boards.
@@ -34,6 +29,18 @@ public class FirmwareUpdateTool extends JFrame {
             Logger.getLogger(FirmwareUpdateTool.class.getName())
                     .log(java.util.logging.Level.SEVERE, null, ex);
         }
+		 Map<String, String> env = System.getenv();
+	        for (String envName : env.keySet()) {
+	            if (envName.equals("APP_VER"))  {
+	            	appVersion = env.get(envName);
+	            } else if (envName.equals("CAP_VER"))  {
+	            	capVersion = env.get(envName);
+	            }
+	        }				
+	    if ((capVersion.length() == 0) || (appVersion.length() == 0)) {
+           Logger.getLogger(FirmwareUpdateTool.class.getName())
+           .log(java.util.logging.Level.SEVERE, null, "YOUR FORGOT THE VERSIONS IN ENV VARS!!!");  
+	    }
 
         // Create and display the Frame
         EventQueue.invokeLater(new Runnable() {
@@ -52,6 +59,7 @@ public class FirmwareUpdateTool extends JFrame {
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        title += appVersion;
         setTitle(title);
         setJMenuBar(createMenubar());
         getContentPane().setLayout(new BorderLayout());
@@ -69,6 +77,7 @@ public class FirmwareUpdateTool extends JFrame {
     protected JMenuBar createMenubar() {
         JMenuBar mb = new JMenuBar();
         mb.add(createFileMenu());
+        mb.add(createAboutMenu());
         return mb;
     }
     
@@ -85,10 +94,23 @@ public class FirmwareUpdateTool extends JFrame {
         return m;
     }
 
+    JMenu createAboutMenu() {
+        JMenu m = new JMenu("About");
+        m.add(new AbstractAction("Version") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+        		About window = new About();
+        		window.showMe(null);
+           }
+       });	
+       return m;
+    }
     private final GalileoFirmwareUpdater flasher;
     private final PreferencesPanel preferences;
     private final UpdateStatusPanel status;
     
-    private static final String title = "Galileo Firmware Update";
+    static String capVersion = "";  // temporary value
+    static String appVersion = "";  // temporary value
+    private static String title = "Galileo Firmware Update ";
 
 }
