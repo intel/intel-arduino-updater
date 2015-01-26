@@ -80,9 +80,18 @@
     </target>
 
     <!-- ====================================================================== -->
+    <!-- Write a text file containint version numbers                           -->
+    <!-- ====================================================================== -->
+    <target name="write-version-file" depends="sanity-checks" description="Sanity checks">
+        <property environment="env"/>
+        <echo file="${build.resources.dir}/versions.properties">APP_VER=${build.shell.version}${line.separator}</echo>
+        <echo file="${build.resources.dir}/versions.properties" append="true">CAP_VER=${build.firmware.version}</echo>
+    </target>
+
+    <!-- ====================================================================== -->
     <!-- Compilation target                                                     -->
     <!-- ====================================================================== -->
-    <target name="compile" depends="sanity-checks" description="Compile the code">
+    <target name="compile" depends="sanity-checks,write-version-file" description="Compile the code">
         <mkdir dir="${build.classes.dir}"/>
         <javac target="1.6" source="1.6"
                srcdir="${build.src.dir}" 
