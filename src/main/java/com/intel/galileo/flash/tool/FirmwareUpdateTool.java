@@ -46,6 +46,7 @@ public class FirmwareUpdateTool extends JFrame {
     }
 	
     public FirmwareUpdateTool() {
+        this.setIconImage(java.awt.Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/application.png")));
         flasher = new GalileoFirmwareUpdater();
         status = new UpdateStatusPanel();
         preferences = new PreferencesPanel(flasher, (new FirmwareUpdateAction(flasher,status)));
@@ -57,7 +58,6 @@ public class FirmwareUpdateTool extends JFrame {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add("Center", preferences);
         getContentPane().add("South", status);
-
         pack();
 
     }
