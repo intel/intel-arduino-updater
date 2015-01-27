@@ -139,17 +139,10 @@
         </exec>
     </target>
     <target name="make-script">
-        <exec executable="cp" dir="${build.dir}" failonerror="true">
-            <arg value="${build.resources.dir}/linux-launcher.sh"/> 
-            <arg value="${build.jarName}"/>
-        </exec>
-        <exec executable="sh" dir="${build.dir}" failonerror="true">
-            <arg value="-c"/>
-            <arg value="cat ${build.jarName}.jar &gt;&gt; ${build.jarName}"/>
-        </exec>
-        <exec executable="chmod" dir="${build.dir}" failonerror="true">
-            <arg value="a+x"/>
-            <arg value="${build.jarName}"/>
-        </exec>
+        <concat binary="yes" destfile="${build.dir}/${build.jarName}">
+            <fileset file="${build.resources.dir}/linux-launcher.sh"/>
+            <fileset file="${build.dir}/${build.jarName}.jar" />
+        </concat>
+        <chmod file="${build.dir}/${build.jarName}" perm="a+x"/>
     </target>
 </project>
