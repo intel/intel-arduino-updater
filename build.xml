@@ -138,4 +138,18 @@
             <arg value="${build.osx.appBundleName}.app"/>
         </exec>
     </target>
+    <target name="make-script">
+        <exec executable="cp" dir="${build.dir}" failonerror="true">
+            <arg value="${build.resources.dir}/linux-launcher.sh"/> 
+            <arg value="${build.jarName}"/>
+        </exec>
+        <exec executable="sh" dir="${build.dir}" failonerror="true">
+            <arg value="-c"/>
+            <arg value="cat ${build.jarName}.jar &gt;&gt; ${build.jarName}"/>
+        </exec>
+        <exec executable="chmod" dir="${build.dir}" failonerror="true">
+            <arg value="a+x"/>
+            <arg value="${build.jarName}"/>
+        </exec>
+    </target>
 </project>
