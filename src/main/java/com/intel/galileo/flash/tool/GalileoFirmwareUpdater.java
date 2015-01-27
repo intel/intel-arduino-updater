@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 public class GalileoFirmwareUpdater {
 
     static final String[] CAPSULE_RESOURCES = {
-        "CAP_VER.cap"
+        "firmware.cap"
     };
     
     static final String CAPSULE_RESOURCE_PATH = "/capsules/";
