@@ -93,15 +93,18 @@
     <target name="package-linux"   if="isLinux">
         <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j/linux" />
         <antcall target="make-exe"/>
+        <antcall target="make-script"/>
     </target>
     <target name="package-windows" if="isWindows">
         <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j/windows" />
         <antcall target="make-exe"/>
+        <antcall target="make-script"/>
     </target>
     <target name="package-osx"     if="isMac">
         <property name="build.launch4j.dir" location="${build.nativeLauncher.dir}/launch4j/osx" />
         <antcall target="make-exe"/>
         <antcall target="make-app"/>
+        <antcall target="make-script"/>
     </target>
 
     <target name="make-exe">
