@@ -111,7 +111,8 @@
         <launch4j>
             <config jar="${build.dir}/${build.jarName}.jar"
                     outfile="${build.dir}/${build.jarName}.exe"
-                    headerType="gui">
+                    headerType="gui"
+                    icon="${basedir}/src/main/resources/icons/application.ico">
                 <jre minVersion="1.6.0"/>
             </config>
         </launch4j>
@@ -125,7 +126,8 @@
                    name="${build.osx.appBundleName}"
                    displayname="${build.osx.friendlyName}"
                    outputdirectory="${build.dir}"
-                   shortversion="${build.version}">
+                   shortversion="${build.version}"
+                   icon="${basedir}/src/main/resources/icons/application.icns">
             <classpath file="${build.dir}/${build.jarName}.jar"/>
         </bundleapp>
         <exec executable="zip" dir="${build.dir}" failonerror="true">
