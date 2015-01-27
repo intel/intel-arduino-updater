@@ -145,7 +145,8 @@
         <launch4j>
             <config jar="${build.dir}/${build.jarName}.jar"
                     outfile="${build.dir}/${build.jarName}.exe"
-                    headerType="gui">
+                    headerType="gui"
+                    icon="${basedir}/icons/application.ico">
                 <jre minVersion="1.6.0"/>
             </config>
         </launch4j>
@@ -159,7 +160,8 @@
                    name="${build.friendlyName}"
                    displayname="${build.friendlyName}"
                    outputdirectory="${build.dir}"
-                   shortversion="${build.about.version}">
+                   shortversion="${build.about.version}"
+                   icon="${basedir}/icons/application.icns">
             <classpath file="${build.dir}/${build.jarName}.jar"/>
         </bundleapp>
         <!-- Unless we remove CFBundleVersion property, version displays as
