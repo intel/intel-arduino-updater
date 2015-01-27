@@ -3,7 +3,6 @@ package com.intel.galileo.flash.tool;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.Map;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -11,12 +10,46 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Properties;
+
 /**
  * User interface for updating firmware on Intel Galileo boards.
  * 
  */
 public class FirmwareUpdateTool extends JFrame {
 
+	private static void parseVersions() {
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			input = FirmwareUpdateTool.class.getClassLoader().getResourceAsStream("versions.properties");
+			if (input != null)
+			{
+			   prop.load(input);	
+			}
+			else
+			{
+				throw new FileNotFoundException("Not able to find the versions file");
+			}
+			appVersion = prop.getProperty("APP_VER");
+			capVersion = prop.getProperty("CAP_VER");
+		} catch (Exception io) {
+			io.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}			
+	}
     public static void main(String[] args) {
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -29,14 +62,9 @@ public class FirmwareUpdateTool extends JFrame {
             Logger.getLogger(FirmwareUpdateTool.class.getName())
                     .log(java.util.logging.Level.SEVERE, null, ex);
         }
-		 Map<String, String> env = System.getenv();
-	        for (String envName : env.keySet()) {
-	            if (envName.equals("APP_VER"))  {
-	            	appVersion = env.get(envName);
-	            } else if (envName.equals("CAP_VER"))  {
-	            	capVersion = env.get(envName);
-	            }
-	        }				
+        
+
+        parseVersions();        
 	    if ((capVersion.length() == 0) || (appVersion.length() == 0)) {
            Logger.getLogger(FirmwareUpdateTool.class.getName())
            .log(java.util.logging.Level.SEVERE, null, "YOUR FORGOT THE VERSIONS IN ENV VARS!!!");  
