@@ -88,7 +88,7 @@ public class FirmwareUpdateTool extends JFrame {
         preferences = new PreferencesPanel(flasher, (new FirmwareUpdateAction(flasher,status)));
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        setResizable(false);
         setJMenuBar(createMenubar());
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add("Center", preferences);
@@ -135,10 +135,10 @@ public class FirmwareUpdateTool extends JFrame {
        return m;
     }
     
-    public void paint(Graphics g) {
-        setTitle(title + " " + FirmwareUpdateTool.capVersion);
-    	super.paint(g);
-    }
+//    public void paint(Graphics g) {
+//        setTitle(title + " " + FirmwareUpdateTool.capVersion);
+//    	super.paint(g);
+//    }
     
     private final GalileoFirmwareUpdater flasher;
     private final PreferencesPanel preferences;

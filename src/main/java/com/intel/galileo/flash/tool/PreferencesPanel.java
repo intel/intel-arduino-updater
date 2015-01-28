@@ -35,6 +35,7 @@ import java.awt.Graphics;
 import java.io.FilenameFilter;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
+import javax.swing.SwingConstants;
 
 /**
  * A JPanel to select the preferences for driving the firmware update.
@@ -196,7 +197,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
                             boardVersion.repaint();
                             boardVersion.revalidate();
                             uploadFirmwareButton.setEnabled(true);
-                            msgJlabel.setVisible(false);
+                            msgJlabel.setText("");
+                            msgJlabel.setVisible(true);
                         }
                         else {
                         	String port = connectionComboBox.getSelectedItem().toString();
@@ -328,7 +330,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         uploadFirmwareButton = new javax.swing.JButton("Upload Firmware");
         uploadFirmwareButton.setEnabled(false);
         msgJlabel = new javax.swing.JLabel();
-        msgJlabel.setVisible(false);
+        msgJlabel.setHorizontalAlignment(SwingConstants.CENTER);
         
         uploadFirmwareButton.setAction(updateAction);
         
@@ -371,7 +373,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
 
 
 
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setHorizontalAlignment(SwingConstants.LEFT);
         jLabel4.setLabelFor(capsuleVersion);
         jLabel4.setText("Update Firmware Version:");
 
@@ -386,7 +388,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         boardVersion.setEditable(false);
         boardVersion.setText("Unknown");
 
-        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel5.setHorizontalAlignment(SwingConstants.LEFT);
         jLabel5.setText("Current Board Firmware Version:");
         
         resourceNameRatio = new JRadioButton("Browse for .cap file");
@@ -441,6 +443,9 @@ public class PreferencesPanel extends javax.swing.JPanel {
         			.addContainerGap()
         			.addGroup(layout.createParallelGroup(Alignment.LEADING)
         				.addGroup(layout.createSequentialGroup()
+        					.addComponent(msgJlabel, GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+        					.addContainerGap())
+        				.addGroup(layout.createSequentialGroup()
         					.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
         						.addComponent(jLabel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         						.addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
@@ -448,27 +453,26 @@ public class PreferencesPanel extends javax.swing.JPanel {
         					.addGroup(layout.createParallelGroup(Alignment.LEADING)
         						.addGroup(layout.createSequentialGroup()
         							.addPreferredGap(ComponentPlacement.RELATED)
-        							.addGroup(layout.createParallelGroup(Alignment.TRAILING, false)
-        								.addComponent(servicesComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        							.addGroup(layout.createParallelGroup(Alignment.LEADING)
+        								.addComponent(servicesComboBox, 0, 289, Short.MAX_VALUE)
+        								.addGroup(layout.createSequentialGroup()
+        									.addComponent(connectionComboBox, 0, 233, Short.MAX_VALUE)
+        									.addGap(56))
         								.addGroup(layout.createSequentialGroup()
         									.addGroup(layout.createParallelGroup(Alignment.LEADING)
-        										.addComponent(jLabel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        										.addComponent(jLabel4))
+        										.addComponent(jLabel5, GroupLayout.PREFERRED_SIZE, 168, GroupLayout.PREFERRED_SIZE)
+        										.addComponent(jLabel4, GroupLayout.PREFERRED_SIZE, 146, GroupLayout.PREFERRED_SIZE))
         									.addPreferredGap(ComponentPlacement.RELATED)
-        									.addGroup(layout.createParallelGroup(Alignment.LEADING, false)
-        										.addComponent(uploadFirmwareButton, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        										.addComponent(boardVersion, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-        										.addComponent(capsuleVersion)))
-        								.addGroup(layout.createSequentialGroup()
-        									.addComponent(connectionComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        									.addGap(56))))
+        									.addGroup(layout.createParallelGroup(Alignment.LEADING)
+        										.addComponent(capsuleVersion, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+        										.addComponent(uploadFirmwareButton, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+        										.addComponent(boardVersion, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)))))
         						.addGroup(layout.createSequentialGroup()
         							.addGap(24)
         							.addGroup(layout.createParallelGroup(Alignment.LEADING)
         								.addComponent(resourceNameRatio)
         								.addComponent(browserRatio))))
-        					.addContainerGap(72, Short.MAX_VALUE))
-        				.addComponent(msgJlabel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)))
+        					.addGap(130))))
         );
         layout.setVerticalGroup(
         	layout.createParallelGroup(Alignment.LEADING)
@@ -487,18 +491,19 @@ public class PreferencesPanel extends javax.swing.JPanel {
         				.addComponent(resourceNameRatio))
         			.addPreferredGap(ComponentPlacement.UNRELATED)
         			.addComponent(browserRatio)
-        			.addPreferredGap(ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
-        			.addGroup(layout.createParallelGroup(Alignment.TRAILING)
-        				.addComponent(capsuleVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        				.addComponent(jLabel4))
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(boardVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        				.addComponent(jLabel5))
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(uploadFirmwareButton, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
         			.addGap(18)
-        			.addComponent(msgJlabel, GroupLayout.PREFERRED_SIZE, 61, GroupLayout.PREFERRED_SIZE))
+        			.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(jLabel4)
+        				.addComponent(capsuleVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        			.addGap(18)
+        			.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(jLabel5)
+        				.addComponent(boardVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        			.addGap(18)
+        			.addComponent(uploadFirmwareButton, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.UNRELATED)
+        			.addComponent(msgJlabel, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
+        			.addContainerGap(36, Short.MAX_VALUE))
         );
         this.setLayout(layout);
 
