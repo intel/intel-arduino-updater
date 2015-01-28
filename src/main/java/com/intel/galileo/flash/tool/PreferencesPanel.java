@@ -152,6 +152,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
             }
             
         }
+        jLabel1.setVisible(false);
+        servicesComboBox.setVisible(false);
         updateCanvasBasedInURL(isThereAnyCap());
 
         updateFirmwareVersion();
