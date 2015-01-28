@@ -41,7 +41,7 @@ public abstract class AbstractZmodemService extends CommunicationService {
 
     @Override
     public String getConnectionLabel() {
-        return "Serial Ports";
+        return "Port:";
     }
 
     @Override

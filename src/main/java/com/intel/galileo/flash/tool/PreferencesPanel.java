@@ -306,12 +306,12 @@ public class PreferencesPanel extends javax.swing.JPanel {
         uploadFirmwareButton.setAction(updateAction);
         
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel1.setText("Service:");
+        jLabel1.setText("Connection:");
         servicesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));	
 
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel2.setText("Connection:");
+        jLabel2.setText("Port:");
 
         connectionComboBox.setEditable(true);
         connectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None" }));
