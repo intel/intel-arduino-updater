@@ -75,6 +75,7 @@ public class FirmwareUpdateTool extends JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+            	
                 new FirmwareUpdateTool().setVisible(true);
             }
         });
@@ -135,10 +136,10 @@ public class FirmwareUpdateTool extends JFrame {
        return m;
     }
     
-//    public void paint(Graphics g) {
-//        setTitle(title + " " + FirmwareUpdateTool.capVersion);
-//    	super.paint(g);
-//    }
+    public void paint(Graphics g) {
+        setTitle(title + " " + FirmwareUpdateTool.capVersion);
+    	super.paint(g);
+    }
     
     private final GalileoFirmwareUpdater flasher;
     private final PreferencesPanel preferences;

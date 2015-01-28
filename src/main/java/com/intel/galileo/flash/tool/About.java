@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import java.awt.Toolkit;
 
 public class About {
 
@@ -45,11 +46,13 @@ public class About {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(About.class.getResource("/icons/application.png")));
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 527, 295);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		JButton btnExitButton = new JButton("Exit");
+		JButton btnExitButton = new JButton("Close");
+		btnExitButton.setSelectedIcon(null);
 		
 		btnExitButton.addActionListener(new java.awt.event.ActionListener() {
 
@@ -62,9 +65,10 @@ public class About {
 		});
 
 		String HTMLlabelStr = "<html><div style='text-align:center'> "
-				              + "<h1><strong>Galileo Firmware Update "
-		                      + FirmwareUpdateTool.capVersion+"</h1> <p><br>Intel Galileo Firmware Update Tool  "
-				              + FirmwareUpdateTool.appVersion+" all rights reserved</p> </div> </html>";
+				              + "<h1><strong>Intel Galileo Firmware Update Tool <br>"
+		                      + FirmwareUpdateTool.appVersion+
+		                      "</h1> <p><br>Copyright &copy 2014-2015 Intel Corporation "
+				              + "<br>All rights reserved.</p> </div> </html>";
 		
 		JLabel lblNewLabel = new JLabel(HTMLlabelStr);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
