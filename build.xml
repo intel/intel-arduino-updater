@@ -32,7 +32,7 @@
     <property name="build.mainClassName" value="com.intel.galileo.flash.tool.FirmwareUpdateTool"/>
     
     <property name="build.nativeLauncher.dir" location="${basedir}/native-launcher-libs"/>
-    <property name="build.appbundler.dir" location="${build.nativeLauncher.dir}" />
+    <property name="build.jarbundler.dir" location="${build.nativeLauncher.dir}" />
     <property name="build.about.version" value="Shell[${build.shell.version}] Firmware[${build.firmware.version}]"/>
     <property name="build.zipName" value="${build.name}-${build.firmware.version}"/>
 
@@ -155,26 +155,18 @@
         </launch4j>
     </target>
     <target name="make-app">
-        <taskdef name="bundleapp"
-                 classname="com.oracle.appbundler.AppBundlerTask"
-                 classpath="${build.appbundler.dir}/appbundler-1.0.jar"/>
-        <bundleapp mainclassname="${build.mainClassName}"
-                   identifier="${build.mainClassName}"
-                   name="${build.friendlyName}"
-                   displayname="${build.friendlyName}"
-                   outputdirectory="${build.dir}"
-                   shortversion="${build.about.version}"
-                   icon="${basedir}/src/main/resources/icons/application.icns">
-            <classpath file="${build.dir}/${build.jarName}.jar"/>
-        </bundleapp>
-        <!-- Unless we remove CFBundleVersion property, version displays as
-                 Shell[1.0.0] Firmware[1.0.x] (1)
-             Removing this property removes " (1)" at the end. -->
-        <exec executable="/usr/libexec/PlistBuddy">
-            <arg value="-c"/>
-            <arg value="Delete CFBundleVersion #${env.BUILD_NUMBER}"/>
-            <arg value="${build.dir}/${build.friendlyName}.app/Contents/Info.plist"/>
-        </exec>
+        <taskdef name="jarbundler"
+                 classname="net.sourceforge.jarbundler.JarBundler"
+                 classpath="${build.jarbundler.dir}/jarbundler-2.3.1.jar"/>
+        <jarbundler mainclass="${build.mainClassName}"
+                    name="${build.friendlyName}"
+                    dir="${build.dir}"
+                    build=""
+                    version="${build.about.version}"
+                    icon="${basedir}/src/main/resources/icons/application.icns"
+                    jvmversion="1.6+"
+                    jar="${build.dir}/${build.jarName}.jar"
+        />
         <exec executable="zip" dir="${build.dir}" failonerror="true">
             <arg value="--quiet"/>
             <arg value="--recurse-paths"/>
