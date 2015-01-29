@@ -392,7 +392,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         boardVersion.setText("Unknown");
 
         jLabel5.setHorizontalAlignment(SwingConstants.LEFT);
-        jLabel5.setText("Current Board Firmware Version:");
+        jLabel5.setText("Current Board Firmware:");
         
         resourceNameRatio = new JRadioButton("Browse for .cap file");
         resourceNameRatio.setSelected(true);
