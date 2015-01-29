@@ -1,8 +1,10 @@
 package com.intel.galileo.flash.tool;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -10,12 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
-
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -84,6 +83,9 @@ public class FirmwareUpdateTool extends JFrame {
 	
     public FirmwareUpdateTool() {
         this.setIconImage(java.awt.Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/application.png")));
+        Dimension ss = Toolkit.getDefaultToolkit ().getScreenSize ();
+        Dimension frameSize = new Dimension ( 500, 300 );
+        this.setBounds ( ss.width / 2 - frameSize.width / 2, ss.height / 2 - frameSize.height / 2, frameSize.width, frameSize.height );
         flasher = new GalileoFirmwareUpdater();
         status = new UpdateStatusPanel();
         preferences = new PreferencesPanel(flasher, (new FirmwareUpdateAction(flasher,status)));
