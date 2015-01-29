@@ -65,9 +65,11 @@ public class About {
 		});
 
 		String HTMLlabelStr = "<html><div style='text-align:center'> "
-				              + "<h1><strong>Intel Galileo Firmware Update Tool <br>"
-		                      + FirmwareUpdateTool.appVersion+
-		                      "</h1> <p><br>Copyright &copy 2014-2015 Intel Corporation "
+				              + "<h1><strong>Galileo Firmware Update "
+		                      + FirmwareUpdateTool.capVersion +
+		                      "</h1> <p><br>Intel Galileo Firmware Update Tool "
+		                      + FirmwareUpdateTool.appVersion
+		                      + "<br>Copyright &copy 2014-2015 Intel Corporation "
 				              + "<br>All rights reserved.</p> </div> </html>";
 		
 		JLabel lblNewLabel = new JLabel(HTMLlabelStr);
