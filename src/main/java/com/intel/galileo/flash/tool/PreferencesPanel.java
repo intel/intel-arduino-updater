@@ -204,6 +204,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
                         }
                         else {
                         	String port = connectionComboBox.getSelectedItem().toString();
+                        	uploadFirmwareButton.setEnabled(false);
                         	msgJlabel.setText("<html><font color='red'>Galileo not found on " + port + "! Please make sure that you select the correct serial port and that you have permission to access.</font></html>");
                         	msgJlabel.setVisible(true);
                         }
