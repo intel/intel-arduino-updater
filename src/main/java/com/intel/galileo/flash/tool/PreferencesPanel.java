@@ -348,12 +348,17 @@ public class PreferencesPanel extends javax.swing.JPanel {
         msgJlabel = new javax.swing.JLabel();
         msgJlabel.setHorizontalAlignment(SwingConstants.CENTER);
         
+        uploadFirmwareButton.addActionListener(new java.awt.event.ActionListener() {
+        	public void actionPerformed(java.awt.event.ActionEvent evt) {
+        		uploadFirmwareButtonActionPerformed(evt);
+        	}
+        });
         uploadFirmwareButton.setAction(updateAction);
+        
         
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Connection:");
         servicesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));	
-
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel2.setText("Port:");
@@ -553,6 +558,10 @@ public class PreferencesPanel extends javax.swing.JPanel {
 			e.printStackTrace();
 		}
     }//GEN-LAST:event_connectionComboBoxActionPerformed
+    
+    private void uploadFirmwareButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    	uploadFirmwareButton.setEnabled(false);
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField boardVersion;
