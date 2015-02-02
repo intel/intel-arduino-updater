@@ -168,7 +168,11 @@ public class PreferencesPanel extends javax.swing.JPanel {
         }
         jLabel1.setVisible(false);
         servicesComboBox.setVisible(false);
-        updateCanvasBasedInURL(isThereAnyCap());
+        
+        // if it is necessary to enable the feature to read automatically
+        // local capsule file located in the same directory of this tool
+        // then you need to add updateCanvasBasedInURL(isThereAnyCap())
+        // before the updateFirmwareVersion()
 
         updateFirmwareVersion();
     }
