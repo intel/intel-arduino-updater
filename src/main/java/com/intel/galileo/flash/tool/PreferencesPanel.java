@@ -150,6 +150,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
         this.galileo = galileo;
         this.galileo.addPropertyChangeListener(changes);
         this.updateAction = action;
+        this.updateAction.setPreferencesPanel(this);
         initComponents();
         initFirmware();
         List<CommunicationService> services = galileo.getCommunicationServices();
@@ -348,14 +349,8 @@ public class PreferencesPanel extends javax.swing.JPanel {
         msgJlabel = new javax.swing.JLabel();
         msgJlabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        uploadFirmwareButton.addActionListener(new java.awt.event.ActionListener() {
-        	public void actionPerformed(java.awt.event.ActionEvent evt) {
-        		uploadFirmwareButtonActionPerformed(evt);
-        	}
-        });
         uploadFirmwareButton.setAction(updateAction);
-        
-        
+                
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Connection:");
         servicesComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None Available" }));	
@@ -559,10 +554,19 @@ public class PreferencesPanel extends javax.swing.JPanel {
 		}
     }//GEN-LAST:event_connectionComboBoxActionPerformed
     
-    private void uploadFirmwareButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    	uploadFirmwareButton.setEnabled(false);
+    
+    public void disableUI(){
+    	parentTool.setEnabled(false);
     }
     
+    public void enableUI(){
+    	parentTool.setEnabled(true);
+    }
+    
+    public void setFirmwareUpdateTool(FirmwareUpdateTool tool)
+    {
+    	this.parentTool = tool;
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField boardVersion;
     private javax.swing.JTextField capsuleVersion;
@@ -584,4 +588,5 @@ public class PreferencesPanel extends javax.swing.JPanel {
     private final ButtonGroup buttonGroup = new ButtonGroup();  
     
     private JFrame frame;
+    private FirmwareUpdateTool parentTool;
 }

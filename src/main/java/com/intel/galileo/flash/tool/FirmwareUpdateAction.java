@@ -36,6 +36,7 @@ import javax.swing.SwingWorker;
 public class FirmwareUpdateAction extends AbstractAction {
 
     static final String DIALOG_TITLE = "Galileo Firmware Update";
+    private PreferencesPanel parentPanel;
 
     public FirmwareUpdateAction(GalileoFirmwareUpdater galileo,
             UpdateStatusPanel status) {
@@ -139,6 +140,11 @@ public class FirmwareUpdateAction extends AbstractAction {
 
     }
 
+    public void setPreferencesPanel(PreferencesPanel panel)
+    {
+    	this.parentPanel = panel;
+    }
+    
     private final GalileoFirmwareUpdater galileo;
     private final UpdateStatusPanel status;
     private FirmwareUpdateTask task;
@@ -168,8 +174,8 @@ public class FirmwareUpdateAction extends AbstractAction {
                 status.setVisible(false);
                 status.revalidate();
                 status.repaint();
+                parentPanel.enableUI();
                 boolean success = get();
-
                 // show user result
                 String msgText = success
                         ? "Target firmware successfully updated."
@@ -214,6 +220,7 @@ public class FirmwareUpdateAction extends AbstractAction {
          */
         @Override
         protected Boolean doInBackground() throws Exception {
+        	parentPanel.disableUI();
             return galileo.updateFirmwareOnBoard(this);
         }
 
