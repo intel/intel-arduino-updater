@@ -135,7 +135,10 @@ public class FirmwareUpdateTool extends JFrame {
     
     JMenu createFileMenu() {
         JMenu m = new JMenu("File");
-        m.add(new FirmwareUpdateAction(flasher,status));
+        FirmwareUpdateAction action;
+        action = new FirmwareUpdateAction(flasher,status);
+        action.setPreferencesPanel(preferences);
+        m.add(action);
         m.add(new AbstractAction("Quit") {
             @Override
             public void actionPerformed(ActionEvent e) {
