@@ -173,12 +173,14 @@ public class PreferencesPanel extends javax.swing.JPanel {
         // local capsule file located in the same directory of this tool
         // then you need to add updateCanvasBasedInURL(isThereAnyCap())
         // before the updateFirmwareVersion()
-
+        
+        uploadFirmwareButton.setEnabled(false);
         updateFirmwareVersion();
     }
     
     private void populateConnections(GalileoFirmwareUpdater galileo) {
         CommunicationService current = galileo.getCommunicationService();
+        uploadFirmwareButton.setEnabled(false);
         if (current != null) {
             servicesComboBox.setSelectedItem(current);
             jLabel2.setText(current.getConnectionLabel());
@@ -215,7 +217,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
                         if (vers != null) {
                             boardVersion.setText(vers.toPresentationString());
                             boardVersion.repaint();
-                            boardVersion.revalidate();
                             uploadFirmwareButton.setEnabled(true);
                             msgJlabel.setText("");
                             msgJlabel.setVisible(true);
@@ -263,9 +264,7 @@ public class PreferencesPanel extends javax.swing.JPanel {
                             resourceNameRatio.setText(vers.toPresentationString());
                             
                             capsuleVersion.repaint();
-                            capsuleVersion.revalidate();
-            
-                            frame.revalidate();
+
                             frame.repaint();
                             
                         }
@@ -277,7 +276,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
             };
            
            capsuleVersionUpdater.execute();
-           revalidate();
            repaint();
            
        }
@@ -297,7 +295,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
                     public void run() {
                         capsuleVersion.setText(updateVersion);
                         capsuleVersion.repaint();
-                        capsuleVersion.revalidate();
                                             
                     }
                 });
@@ -309,7 +306,6 @@ public class PreferencesPanel extends javax.swing.JPanel {
                     public void run() {
                         boardVersion.setText(version);
                         boardVersion.repaint();
-                        boardVersion.revalidate();
                                             
                     }
                 });
