@@ -1,2 +1,3 @@
 output
 versions.properties
+src/main/resources/capsules/*.cap

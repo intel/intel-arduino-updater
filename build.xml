@@ -10,6 +10,8 @@
     <property name="build.license" value="GNU General Public License"/>
 
     <property name="build.dir" location="${basedir}/output"/>
+    <property name="build.driver.dir.name" value="Galileo Driver"/>
+    <property name="build.driver.dir" location="${basedir}/${build.driver.dir.name}"/>
     <property name="build.src.dir" location="${basedir}/src/main/java"/>
     <property name="build.resources.dir" location="${basedir}/src/main/resources"/>
 
@@ -153,6 +155,10 @@
                 <jre minVersion="1.6.0"/>
             </config>
         </launch4j>
+        <zip destfile="${build.dir}/${build.jarName}.exe.zip">
+            <fileset file="${build.dir}/${build.jarName}.exe" />
+            <zipfileset dir="${build.driver.dir}" prefix="${build.driver.dir.name}"/>
+        </zip>
     </target>
     <target name="make-app">
         <taskdef name="jarbundler"
