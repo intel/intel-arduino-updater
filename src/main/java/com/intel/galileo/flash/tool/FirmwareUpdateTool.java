@@ -172,6 +172,6 @@ public class FirmwareUpdateTool extends JFrame {
     
     static String capVersion = "";  // temporary value
     static String appVersion = "";  // temporary value
-    private static String title = "Galileo Firmware Update ";
+    private static String title = "Intel® Galileo Firmware Updater ";
 
 }
