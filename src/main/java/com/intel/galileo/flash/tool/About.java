@@ -84,12 +84,12 @@ public class About {
 		});
 
 		String HTMLlabelStr = "<html><div style='text-align:center'> "
-				              + "<h1><strong>Intel® Galileo Firmware Updater "
-		                      + FirmwareUpdateTool.capVersion +
-		                      "</h1> <p><br>Intel® Galileo Firmware Updater Tool "
-		                      + FirmwareUpdateTool.appVersion
-		                      + "<br>Copyright &copy 2014-2015 Intel Corporation "
-				              + "<br>All rights reserved.</p> </div> </html>";
+	              + "<h1><strong>Intel® Galileo Firmware Update "
+                + FirmwareUpdateTool.capVersion +
+                "</h1> <p><br> <small>Intel® Galileo Firmware Updater "
+                + FirmwareUpdateTool.appVersion
+                + "<br>Copyright &copy 2014-2015 Intel Corporation "
+	              + "<br>All rights reserved. </small></p> </div> </html>";
 		
 		JLabel lblNewLabel = new JLabel(HTMLlabelStr);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
