@@ -26,11 +26,14 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.logging.Logger;
+
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -105,6 +108,20 @@ public class FirmwareUpdateTool extends JFrame {
         Dimension ss = Toolkit.getDefaultToolkit ().getScreenSize ();
         Dimension frameSize = new Dimension ( 500, 300 );
         this.setBounds ( ss.width / 2 - frameSize.width / 2, ss.height / 2 - frameSize.height / 2, frameSize.width, frameSize.height );
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+        	@Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                
+                if(preferences.isUpdateRunning()){
+                	setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                }
+                else {
+                	setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                	System.out.println("Closing");
+					System.exit(0);
+				}
+            }
+        });
         flasher = new GalileoFirmwareUpdater();
         status = new UpdateStatusPanel();
         preferences = new PreferencesPanel(flasher, (new FirmwareUpdateAction(flasher,status)));

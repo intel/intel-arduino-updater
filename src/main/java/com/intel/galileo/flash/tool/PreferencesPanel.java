@@ -567,6 +567,10 @@ public class PreferencesPanel extends javax.swing.JPanel {
     {
     	this.parentTool = tool;
     }
+    
+    public boolean isUpdateRunning(){
+    	return updateAction.isRunning();
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField boardVersion;
     private javax.swing.JTextField capsuleVersion;
