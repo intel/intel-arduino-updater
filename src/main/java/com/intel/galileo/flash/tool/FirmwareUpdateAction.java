@@ -145,9 +145,13 @@ public class FirmwareUpdateAction extends AbstractAction {
     	this.parentPanel = panel;
     }
     
+    public boolean isRunning(){
+    	return runState;
+    }
     private final GalileoFirmwareUpdater galileo;
     private final UpdateStatusPanel status;
     private FirmwareUpdateTask task;
+    private boolean runState = false;
 
     /**
      * Execute the firmware update on a separate thread with progress displayed
@@ -171,6 +175,7 @@ public class FirmwareUpdateAction extends AbstractAction {
         @Override
         protected void done() {
             try {
+            	runState = false;
                 status.setVisible(false);
                 status.revalidate();
                 status.repaint();
@@ -220,6 +225,7 @@ public class FirmwareUpdateAction extends AbstractAction {
          */
         @Override
         protected Boolean doInBackground() throws Exception {
+        	runState = true;
         	parentPanel.disableUI();
             return galileo.updateFirmwareOnBoard(this);
         }
