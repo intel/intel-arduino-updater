@@ -35,7 +35,7 @@ import javax.swing.SwingWorker;
  */
 public class FirmwareUpdateAction extends AbstractAction {
 
-    static final String DIALOG_TITLE = "Galileo Firmware Update";
+    static final String DIALOG_TITLE = "Intel Galileo Firmware Updater";
     private PreferencesPanel parentPanel;
 
     public FirmwareUpdateAction(GalileoFirmwareUpdater galileo,
@@ -123,7 +123,7 @@ public class FirmwareUpdateAction extends AbstractAction {
         	if ((res < 0) || (v_candidate.compareTo("732") == 0)  ) {
         		 JOptionPane.showMessageDialog(parent,
                          "The current firmware version " + v_b + " does not accept be downgraded to " + v_candidate +
-        		         ".The candidate capsule file must be superior of " + critical_version + ".",
+        		         ".The candidate capsule file must be " + critical_version + " or newer.",
                          DIALOG_TITLE,
                          ERROR_MESSAGE);
                  return;
