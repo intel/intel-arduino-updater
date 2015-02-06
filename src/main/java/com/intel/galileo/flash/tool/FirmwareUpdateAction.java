@@ -103,7 +103,34 @@ public class FirmwareUpdateAction extends AbstractAction {
 
         String windowDescription = "Target firmware is version '"
                 + target_version_id.toPresentationString() + "' now.\n\nDo you wish to ";
+     
+        // checking if there is some downgrade
+        final String critical_version = "1.0.2";
+        String v_b = target_version_id.toPresentationString();
+        String v_candidate = ready_version_id.toPresentationString();
+        
+        int res = v_b.compareTo(critical_version);
+        if (res >= 0) {
 
+            // if the board is superior of 1.0.2 it is necessary
+        	// to check if the candidate capsule file is superior 
+        	// to 1.0.2
+        	
+        	res = v_candidate.compareTo(critical_version);
+        	
+        	// Note the comparation with "732" must be removed when decoder
+        	// issue be resolved
+        	if ((res < 0) || (v_candidate.compareTo("732") == 0)  ) {
+        		 JOptionPane.showMessageDialog(parent,
+                         "The current firmware version " + v_b + " does not accept be downgraded to " + v_candidate +
+        		         ".The candidate capsule file must be superior of " + critical_version + ".",
+                         DIALOG_TITLE,
+                         ERROR_MESSAGE);
+                 return;
+        	}
+        	
+        }
+                
         boolean isEquivalent = false;
         try {
             int d = ready_version_id.compareTo(target_version_id);
@@ -119,6 +146,7 @@ public class FirmwareUpdateAction extends AbstractAction {
             windowDescription += "overwrite with";
         }
 
+        
         if (!isEquivalent) {
             windowDescription += " version '"
                     + ready_version_id.toPresentationString() + "'";
