@@ -117,10 +117,9 @@ public class FirmwareUpdateAction extends AbstractAction {
         	// to 1.0.2
         	
         	res = v_candidate.compareTo(critical_version);
-        	
+            if (res < 0) {
         	// Note the comparation with "732" must be removed when decoder
         	// issue be resolved
-        	if ((res < 0) || (v_candidate.compareTo("732") == 0)  ) {
         		 JOptionPane.showMessageDialog(parent,
                          "The current firmware version " + v_b + " does not accept be downgraded to " + v_candidate +
         		         ".The candidate capsule file must be " + critical_version + " or newer.",
