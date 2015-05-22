@@ -38,14 +38,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.LogManager;
 
 /**
  * User interface for updating firmware on Intel Galileo boards.
  * 
  */
 public class FirmwareUpdateTool extends JFrame {
-
-		
 	private static void parseVersions() {
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -73,6 +72,21 @@ public class FirmwareUpdateTool extends JFrame {
 		}			
 	}
     public static void main(String[] args) {
+        final FirmwareUpdateCmdArgs cmdArgs = new FirmwareUpdateCmdArgs();
+        int errorcode;
+        if((errorcode = cmdArgs.ParseArguments(args)) > 0) // Non-Zero mean bad parsing
+        {
+            System.out.println("--serial_port SerialPort --file CapsFile.cap --default_image");
+            System.out.println("With no arguments, GUI version will start.");
+            System.exit(errorcode);
+            return;
+        }
+        if (!cmdArgs.isVerbose()) {
+            LogManager.getLogManager().reset();
+            Logger globalLogger = Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
+            globalLogger.setLevel(java.util.logging.Level.OFF);
+        }
+		
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -96,14 +110,22 @@ public class FirmwareUpdateTool extends JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-            	
-                new FirmwareUpdateTool().setVisible(true);
+                if (cmdArgs.isSilentInstall() == true) {
+                    new FirmwareUpdateSilent(cmdArgs).runSilent(true); // Disallow actual flashing if false
+                }
+                else {
+                    // if the exe is double clicked this makes sure that the console is not noisy
+                    LogManager.getLogManager().reset();
+                    Logger globalLogger = Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
+                    globalLogger.setLevel(java.util.logging.Level.OFF);
+                    new FirmwareUpdateTool().setVisible(true);
+                }
             }
         });
 
     }
 	
-    public FirmwareUpdateTool() {
+    public FirmwareUpdateTool() {  
         this.setIconImage(java.awt.Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/application.png")));
         Dimension ss = Toolkit.getDefaultToolkit ().getScreenSize ();
         Dimension frameSize = new Dimension ( 500, 300 );
@@ -189,6 +211,23 @@ public class FirmwareUpdateTool extends JFrame {
     
     static String capVersion = "";  // temporary value
     static String appVersion = "";  // temporary value
+    
+    // errors returned to OS
+    static final int E_SUCCESS              = 0;
+    static final int E_INVDOWNGRADE         = 1;
+    static final int E_CAPFILE_NOTFOUND     = 2;
+    static final int E_BADCOMPORT           = 3;
+    static final int E_UPDATEFAILED         = 4;
+    static final int E_BADCAPFILE           = 5;
+    static final int E_BADARG               = 6;
+    static final int E_BADINTERNALFW        = 7;
+    static final int E_UNABLEQUERYBRDFW     = 8;
+    static final int E_UNKNOWN              = 9;
+    static final int E_COMCOUNT             = 10; // must use one COM if commmand line args used
+    static final int E_CAPCOUNT             = 11; // must use one or less cap if command line used
+	static final int E_NOBOARD              = 12; // if no comport specified and search fails
+    
     private static String title = "Intel\u00ae Galileo Firmware Updater ";
+     
 
 }

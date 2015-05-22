@@ -148,10 +148,15 @@
                  classname="net.sf.launch4j.ant.Launch4jTask"
                  classpath="${build.launch4j.dir}/launch4j.jar:${build.launch4j.dir}/lib/xstream.jar"/>
         <launch4j>
+
+            <!-- stayAlive: Debugging window opens in GUI. Needed for Command Line -->
+			<!-- singleInstance: Make sure only one instance is running in Windows exe only -->
             <config jar="${build.dir}/${build.jarName}.jar"
                     outfile="${build.dir}/${build.jarName}.exe"
-                    headerType="gui"
+                    headerType="console"
+		    	    stayAlive="true"
                     icon="${basedir}/src/main/resources/icons/application.ico">
+		        <singleInstance mutexName="com.intel.galileo.flash.tool.FirmwareUpdateTool" />
                 <jre minVersion="1.6.0"/>
             </config>
         </launch4j>
