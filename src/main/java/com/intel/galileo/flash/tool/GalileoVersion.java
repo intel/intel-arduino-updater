@@ -76,7 +76,15 @@ public class GalileoVersion implements Comparable<GalileoVersion> {
                 s.append('+');
             }
 
-            s.append(this.build.toString());
+        	String raw = this.build.toString();            
+            if (s.indexOf(".") < 0) {
+            	s.append("0.");
+            	s.append(raw.charAt(0));
+            	s.append(".");
+            	s.append(raw.charAt(1));
+            } else {
+                s.append(raw);
+            }
         }
 
         return s.toString();
