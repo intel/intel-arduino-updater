@@ -4,8 +4,8 @@
     <!-- ====================================================================== -->
     <!-- Build environment properties                                           -->
     <!-- ====================================================================== -->
-    <property name="build.name" value="firmware-updater"/>
-    <property name="build.friendlyName" value="Firmware Updater"/>
+    <property name="build.name" value="IntelGalileoFirmwareUpdater"/>
+    <property name="build.friendlyName" value="Intel Galileo Firmware Updater"/>
     <property name="build.shell.version" value="1.0.0"/>
     <property name="build.license" value="GNU General Public License"/>
 
@@ -18,7 +18,7 @@
     <!-- Get the firmware file name -->
     <pathconvert property="capsules.dir.list" pathsep="${line.separator}">
         <fileset dir="${build.resources.dir}/capsules">
-            <include name="*.cap"/>
+            <include name="1.*.*.cap"/>
         </fileset>
     </pathconvert>
     <loadresource property="capsule.file.path">
@@ -34,7 +34,7 @@
     <property name="build.mainClassName" value="com.intel.galileo.flash.tool.FirmwareUpdateTool"/>
     
     <property name="build.nativeLauncher.dir" location="${basedir}/native-launcher-libs"/>
-    <property name="build.jarbundler.dir" location="${build.nativeLauncher.dir}" />
+    <property name="build.appbundler.dir" location="${build.nativeLauncher.dir}" />
     <property name="build.about.version" value="Shell[${build.shell.version}] Firmware[${build.firmware.version}]"/>
     <property name="build.zipName" value="${build.name}-${build.firmware.version}"/>
 
@@ -69,6 +69,7 @@
     <!-- ====================================================================== -->
     <target name="clean" description="Clean the output directory">
         <delete dir="${build.dir}"/>
+        <delete dir="${build.resources.dir}/capsules/firmware.cap"/>
     </target>
 
     <!-- ====================================================================== -->
@@ -93,7 +94,7 @@
     <!-- Compilation target                                                     -->
     <!-- ====================================================================== -->
     <target name="compile" depends="sanity-checks,write-version-file" description="Compile the code">
-        <move file="${capsule.file.path}" tofile="${build.resources.dir}/capsules/firmware.cap"/>
+        <copy file="${capsule.file.path}" tofile="${build.resources.dir}/capsules/firmware.cap"/>
         <mkdir dir="${build.classes.dir}"/>
         <javac target="1.6" source="1.6"
                srcdir="${build.src.dir}" 
@@ -166,18 +167,18 @@
         </zip>
     </target>
     <target name="make-app">
-        <taskdef name="jarbundler"
-                 classname="net.sourceforge.jarbundler.JarBundler"
-                 classpath="${build.jarbundler.dir}/jarbundler-2.3.1.jar"/>
-        <jarbundler mainclass="${build.mainClassName}"
-                    name="${build.friendlyName}"
-                    dir="${build.dir}"
-                    build=""
-                    version="${build.about.version}"
-                    icon="${basedir}/src/main/resources/icons/application.icns"
-                    jvmversion="1.6+"
-                    jar="${build.dir}/${build.jarName}.jar"
-        />
+        <taskdef name="bundleapp"
+                 classname="com.oracle.appbundler.AppBundlerTask"
+                 classpath="${build.appbundler.dir}/appbundler-1.0.jar" />
+        <bundleapp outputdirectory="${build.dir}"
+                   name="${build.jarName}"
+                   displayname="${build.friendlyName}"
+                   identifier="${build.name}"
+                   icon="${basedir}/src/main/resources/icons/application.icns"
+                   mainclassname="${build.mainClassName}">
+            <runtime dir="${env.JAVA_HOME}"/>
+            <classpath file="${build.dir}/${build.jarName}.jar" />
+        </bundleapp>
         <exec executable="zip" dir="${build.dir}" failonerror="true">
             <arg value="--quiet"/>
             <arg value="--recurse-paths"/>
